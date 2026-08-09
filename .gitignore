@@ -6,6 +6,10 @@
 *.key
 *.pem
 *.cert
+*.token
+push_all_repos.sh
+push_all_repos.py
+run_git.sh
 
 # Python
 __pycache__/

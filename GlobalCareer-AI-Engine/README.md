@@ -92,5 +92,6 @@ chmod +x launch_career_engine.sh
 **Pradeep Thallapelly**  
 *Senior AI & Data Engineer / Analytics Engineering Lead*  
 - 💼 **LinkedIn**: [linkedin.com/in/pradeep-thallapelly-890b17312](https://linkedin.com/in/pradeep-thallapelly-890b17312)  
+- 🌐 **Portfolio**: [pradeepthallapelly369.github.io](https://pradeepthallapelly369.github.io/)
 - 📧 **Email**: [pradeep.thallapelly369@outlook.com](mailto:pradeep.thallapelly369@outlook.com)  
 - 🐙 **GitHub**: [@pradeepthallapelly369](https://github.com/pradeepthallapelly369)

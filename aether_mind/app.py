@@ -12,7 +12,7 @@ from tools.system_tool import get_system_stats
 app = FastAPI(title="AetherMind 70B Local Agent Platform", version="1.0.0")
 
 # Setup static files directory
-STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
+STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
 os.makedirs(STATIC_DIR, exist_ok=True)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
@@ -25,14 +25,14 @@ class ModelConfig(BaseModel):
     model_name: str
 
 @app.get("/")
-async def get_index():
+def get_index():
     index_path = os.path.join(STATIC_DIR, "index.html")
     if os.path.exists(index_path):
         return FileResponse(index_path)
     return HTMLResponse("<h2>AetherMind 70B Engine Server Running. UI file index.html loading...</h2>")
 
 @app.get("/api/system")
-async def get_system_info():
+def get_system_info():
     """Get live system stats (CPU, RAM, GPU VRAM)."""
     return get_system_stats()
 
@@ -67,8 +67,11 @@ async def websocket_task_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         print("[AetherMind] WebSocket Client disconnected.")
     except Exception as e:
-        await websocket.send_text(json.dumps({"type": "error", "data": str(e)}))
-        await websocket.close()
+        try:
+            await websocket.send_text(json.dumps({"type": "error", "data": str(e)}))
+            await websocket.close()
+        except Exception:
+            pass
 
 if __name__ == "__main__":
     import uvicorn

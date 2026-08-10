@@ -9,12 +9,12 @@ from engine.global_job_scout import scout_all_global_jobs
 from engine.resume_optimizer import optimize_resume_for_jd
 from engine.application_tracker import add_or_update_job, get_all_applications
 
-def run_auto_apply_pipeline(max_jobs: int = 10, target_country: str = "GLOBAL_REMOTE"):
+def run_auto_apply_pipeline(max_jobs: int = 50, target_country: str = "GLOBAL_REMOTE"):
     """
-    Scouts live global jobs, filters high matches (>=80%), generates tailored ATS resumes & pitch emails,
+    Scouts live global jobs across web APIs, filters high matches (>=85%), generates tailored ATS resumes & pitch emails,
     and logs them in the applications database.
     """
-    print(f"🚀 [Auto-Applier] Starting autonomous scouting & tailoring pipeline (Target: {target_country})...")
+    print(f"🚀 [Auto-Applier] Starting autonomous scouting & tailoring pipeline (Target: {target_country}, Threshold: >=85%)...")
     scouted_jobs = scout_all_global_jobs()
     
     processed_count = 0
@@ -25,7 +25,7 @@ def run_auto_apply_pipeline(max_jobs: int = 10, target_country: str = "GLOBAL_RE
             break
 
         match_score = job.get("match_score", 75)
-        if match_score < 80:
+        if match_score < 85:
             continue
 
         title = job.get("title", "Senior Data Engineer")

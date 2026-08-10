@@ -147,10 +147,10 @@ HTML_DASHBOARD = """
     <header>
         <div class="logo">🌐 GlobalCareer AI Engine</div>
         <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchTab('optimizer')">🎯 Resume & Pitch Tailor</button>
-            <button class="tab-btn" onclick="switchTab('scout')">📡 Live Global Job Radar</button>
-            <button class="tab-btn" onclick="switchTab('tracker')">📊 Application Tracker</button>
-            <button class="tab-btn" onclick="switchTab('linkedin')">💼 LinkedIn Optimizer</button>
+            <button class="tab-btn active" onclick="switchTab('optimizer', this)">🎯 Resume & Pitch Tailor</button>
+            <button class="tab-btn" onclick="switchTab('scout', this)">📡 Live Global Job Radar</button>
+            <button class="tab-btn" onclick="switchTab('tracker', this)">📊 Application Tracker</button>
+            <button class="tab-btn" onclick="switchTab('linkedin', this)">💼 LinkedIn Optimizer</button>
         </div>
     </header>
 
@@ -209,7 +209,7 @@ HTML_DASHBOARD = """
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <div>
                     <h2>📡 Live Global Remote & Visa Sponsorship Job Radar</h2>
-                    <p style="color:var(--text-sub); font-size:14px;">Streaming worldwide USD/EUR/GBP remote jobs & visa relocation roles for India-based candidates.</p>
+                    <p style="color:var(--text-sub); font-size:14px;">Streaming worldwide USD/EUR/GBP remote jobs & visa relocation roles for Qlik, BI Engineer & Data Migration Specialist roles.</p>
                 </div>
                 <button class="btn-primary" onclick="scoutJobs()">🔄 Refresh Global Stream</button>
             </div>
@@ -235,16 +235,15 @@ HTML_DASHBOARD = """
             <p style="color:var(--text-sub); margin-bottom:16px;">Direct copy-paste sections tailored for linkedin.com/in/pradeep-thallapelly-890b17312 to boost inbound recruiter messages.</p>
             
             <label>Optimized Headline (Copy to LinkedIn Headline)</label>
-            <pre>Senior AI & Data Engineer | Qlik Sense & Databricks Architect | dbt Core & LLM Systems Lead | Open to Worldwide Remote (USD/EUR) & Visa Sponsorship</pre>
+            <pre>Senior BI Developer & Data Engineer | Qlik Sense & Databricks Architect | dbt Core & Data Migration Lead | Open to Worldwide Remote (USD/EUR) & Visa Sponsorship</pre>
 
             <label>Optimized About / Summary Section</label>
-            <pre>Experienced Senior AI & Data Engineer with 6+ years of expertise designing enterprise data lakehouses, institutional BI dashboard architectures, and autonomous AI agent systems. Certified Qlik Sense Data Architect & Databricks practitioner with a proven track record of migrating complex legacy reporting systems (Qlik/Intellicus) to high-performance dbt Core + Databricks Delta Lake pipelines.
+            <pre>Experienced Senior BI Developer and Data Engineer with 6+ years of expertise designing enterprise data lakehouses, Qlik Sense/View dashboard architectures, and dbt Core data pipelines. Certified Qlik Sense Data Architect & Databricks practitioner with a proven track record of migrating complex legacy reporting systems (Qlik/Intellicus) to high-performance dbt Core + Databricks Delta Lake pipelines.
 
 Key Technical Specializations:
-• Data Engineering & Analytics: dbt Core (Staging → Marts), Databricks Delta Lake, Snowflake, SQL, PySpark, Data Warehousing.
-• Business Intelligence: Qlik Sense (Data Modeling, Set Analysis, NPrinting, QVD Optimization), Power BI, Executive KPI Dashboards.
-• AI Engineering & LLM Systems: Autonomous Multi-Agent Swarms, AirLLM 70B layer-wise local inference engines (DeepSeek-R1 70B), FastAPI REST backends, SSE streaming.
-• Quantitative Systems: Black-Scholes Options Greeks Engine, Fyers/Zerodha Live Broker OAuth Integration.
+• Qlik Ecosystem: Qlik Sense (Data Modeling, Set Analysis, NPrinting, QVD Optimization), QlikView, Qlik Cloud.
+• Business Intelligence & Analytics: Business Intelligence Engineer, BI Developer, Power BI, Executive KPI Dashboards.
+• Data Engineering & Migration: dbt Core (Staging → Marts), Databricks Delta Lake, Data Migration Engineer, Snowflake, SQL, PySpark.
 
 Currently seeking Worldwide Remote (USD/EUR/GBP) roles or International Visa Sponsorship opportunities.
 Email: pradeep.thallapelly369@outlook.com | GitHub: github.com/pradeepthallapelly369</pre>
@@ -252,11 +251,11 @@ Email: pradeep.thallapelly369@outlook.com | GitHub: github.com/pradeepthallapell
     </div>
 
     <script>
-        function switchTab(tabId) {
+        function switchTab(tabId, btn) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            event.target.classList.add('active');
+            if(btn) btn.classList.add('active');
 
             if(tabId === 'scout') scoutJobs();
             if(tabId === 'tracker') loadApplications();

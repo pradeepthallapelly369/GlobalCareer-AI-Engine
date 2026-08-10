@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AetherMind 70B - Autonomous Local Agent Workspace</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <div class="logo-badge">LOCAL AGENT</div>
+      <h1>AetherMind 70B Engine</h1>
+    </div>
+    <div class="system-badges">
+      <div class="badge">
+        <span class="status-indicator"></span>
+        <span>STATUS:</span>
+        <span class="badge-val" id="agentStatus">READY</span>
+      </div>
+      <div class="badge">
+        <span>CPU:</span>
+        <span class="badge-val" id="cpuUsage">--%</span>
+      </div>
+      <div class="badge">
+        <span>RAM:</span>
+        <span class="badge-val" id="ramUsage">-- / -- GB</span>
+      </div>
+      <div class="badge">
+        <span>GPU VRAM:</span>
+        <span class="badge-val" id="gpuStats">N/A</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Left Configuration Panel -->
+    <aside class="sidebar">
+      <div class="card">
+        <div class="card-title">Model Backend Settings</div>
+        <div class="input-group">
+          <label>Inference Base URL</label>
+          <input type="text" id="baseUrlInput" value="http://localhost:11434">
+        </div>
+        <div class="input-group">
+          <label>Model Name (70B / 32B / MoE)</label>
+          <input type="text" id="modelNameInput" value="qwen2.5-coder:32b">
+        </div>
+        <button class="btn btn-cyan" id="saveConfigBtn" style="width: 100%;">Save Model Config</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Capabilities & Tools</div>
+        <div style="font-size: 0.82rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 8px;">
+          <div>✅ <b>execute_bash</b>: Shell Command Execution</div>
+          <div>✅ <b>read_file / write_file</b>: Workspace File I/O</div>
+          <div>✅ <b>list_workspace</b>: Directory Navigation</div>
+          <div>✅ <b>get_system_stats</b>: Hardware Monitoring</div>
+          <div>⚡ <b>Unlimited Execution</b>: 100% Offline / Local</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Agent Workspace -->
+    <main class="main-workspace">
+      <div class="card task-box">
+        <div class="card-title">Dispatch Task to AetherMind Agent</div>
+        <div class="input-group">
+          <label>Working Directory</label>
+          <input type="text" id="cwdInput" value="/home/upc/every_thing_claude">
+        </div>
+        <textarea class="task-input" id="taskInput" placeholder="Enter task (e.g. 'Build a python backend script for market analysis', 'Refactor push_all_repos.py to add logging', 'Check system stats and optimize memory usage')..."></textarea>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button class="btn btn-cyan" id="runTaskBtn">🚀 Execute Task Autonomously</button>
+        </div>
+      </div>
+
+      <div class="card" style="flex: 1; display: flex; flex-direction: column;">
+        <div class="card-title">Agent Thought & Tool Timeline</div>
+        <div class="timeline" id="timeline">
+          <div class="event-card thought">
+            <div class="event-header">
+              <span class="event-title">SYSTEM READY</span>
+              <span>AetherMind 70B Agent Engine</span>
+            </div>
+            <div>AetherMind 70B is initialized and waiting for task instructions...</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

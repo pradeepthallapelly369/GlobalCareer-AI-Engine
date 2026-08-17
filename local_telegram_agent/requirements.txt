@@ -1,4 +1,0 @@
-python-telegram-bot
-ollama
-langchain
-langchain-community

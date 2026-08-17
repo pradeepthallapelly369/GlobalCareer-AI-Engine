@@ -1,15 +1,25 @@
+# Env & secrets
+.env
+*.env
+
 # Python
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyc
+*.pyo
 venv/
 .venv/
-*.log
 
-# Secrets & Environment
-.env
-.env.*
-*.token
+# Data
+data/
+logs/
+*.db
 
-# Databases
-applications.db
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

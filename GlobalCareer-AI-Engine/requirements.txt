@@ -1,6 +1,27 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# GlobalCareer AI Engine — Dependencies
+# ══════════════════════════════════════════════════════════════════════════════
+
+# Core
 fastapi>=0.110.0
 uvicorn>=0.28.0
 requests>=2.31.0
 pyyaml>=6.0.1
 pydantic>=2.6.0
 python-dotenv>=1.0.1
+
+# Job Scraping
+python-jobspy>=1.1.0
+feedparser>=6.0.10
+
+# AI / LLM
+groq>=0.4.0
+
+# Scheduling
+apscheduler>=3.10.0
+
+# Database
+# (sqlite3 is built-in)
+
+# Utilities
+pandas>=2.0.0

@@ -8,7 +8,11 @@ DEFAULT_NSE_UNIVERSE = [
     "RELIANCE.NS", "TCS.NS", "INFY.NS", "HDFCBANK.NS", "ICICIBANK.NS",
     "DIXON.NS", "TATAELXSI.NS", "LT.NS", "SBIN.NS", "BAJFINANCE.NS",
     "SUNPHARMA.NS", "BHARTIARTL.NS", "ITC.NS", "TRENT.NS", "BEL.NS",
-    "HAL.NS", "POLYCAB.NS", "VBL.NS", "KAYNES.NS", "TATASTEEL.NS"
+    "HAL.NS", "POLYCAB.NS", "VBL.NS", "KAYNES.NS", "TATASTEEL.NS",
+    "TATAMOTORS.NS", "M&M.NS", "DIVISLAB.NS", "APOLLOHOSP.NS", "BPCL.NS",
+    "TATACONSUM.NS", "HEROMOTOCO.NS", "INDUSINDBK.NS", "GRASIM.NS", "BRITANNIA.NS",
+    "TATAPOWER.NS", "JIOFIN.NS", "ZOMATO.NS", "PERSISTENT.NS", "COFORGE.NS",
+    "TITAN.NS", "WIPRO.NS", "ULTRACEMCO.NS", "NESTLEIND.NS", "POWERGRID.NS"
 ]
 
 def run_screener_scan(tickers=None) -> dict:
@@ -77,6 +81,6 @@ def run_screener_scan(tickers=None) -> dict:
 
     return {
         "total_scanned": len(tickers),
-        "long_term_picks": long_term_picks,
-        "short_term_picks": short_term_picks
+        "long_term_picks": long_term_picks[:10],
+        "short_term_picks": short_term_picks[:10]
     }

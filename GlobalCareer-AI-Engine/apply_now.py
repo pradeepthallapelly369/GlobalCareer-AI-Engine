@@ -40,6 +40,7 @@ def apply_to_top_jobs():
         
     print(f"Found {len(rows)} high-match jobs ready for application.\n")
     
+    applied_jobs = []
     for row in rows:
         job = dict(row)
         title = job.get("title", "Unknown")
@@ -95,10 +96,27 @@ def apply_to_top_jobs():
             update_status(job_id, "Applied", "Auto-tailored and drafted")
             print("   ✅ Status updated to 'Applied'\n")
             
+            applied_jobs.append({"title": title, "company": company, "url": job.get("url", "N/A")})
+            
         except Exception as e:
             print(f"   ❌ Failed to process application: {e}\n")
             
     print("🎉 Auto-Apply sequence complete!")
+    
+    if applied_jobs:
+        summary_lines = ["Here is the summary of jobs that were automatically applied to in this run:\n"]
+        for i, aj in enumerate(applied_jobs, 1):
+            summary_lines.append(f"{i}. {aj['title']} at {aj['company']}")
+            summary_lines.append(f"   URL: {aj['url']}\n")
+        
+        summary_body = "\n".join(summary_lines)
+        summary_email_data = {
+            "subject": f"[{datetime.now().strftime('%Y-%m-%d %H:%M')}] Auto-Apply Summary Report",
+            "body": summary_body
+        }
+        print(f"📧 Sending summary report to {TARGET_EMAIL}...")
+        send_cold_email(summary_email_data, to_address=TARGET_EMAIL)
+        print("✅ Summary report sent!")
 
 if __name__ == "__main__":
     apply_to_top_jobs()

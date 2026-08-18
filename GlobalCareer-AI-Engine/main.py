@@ -72,6 +72,8 @@ def run_scan():
     
     # Auto-tailor and send drafts to user for top jobs (>80 score)
     tailored_count = 0
+    applied_jobs_summary = []
+    
     for job, email_data in zip(matched_jobs, cold_emails):
         if job.get("match_score", 0) >= 80:
             if optimize_resume_for_jd:
@@ -103,8 +105,24 @@ def run_scan():
             ) if 'tailored' in locals() else email_data["body"]
             
             send_cold_email(email_data, to_address=TARGET_EMAIL)
+            applied_jobs_summary.append({"title": job.get("title", ""), "company": job.get("company", ""), "url": job.get("url", "N/A")})
 
     logger.info(f"   {len(cold_emails)} cold emails generated, {tailored_count} resumes tailored")
+    
+    if applied_jobs_summary:
+        summary_lines = ["Here is the summary of jobs that were automatically applied (tailored and drafted) in this scheduled run:\n"]
+        for i, aj in enumerate(applied_jobs_summary, 1):
+            summary_lines.append(f"{i}. {aj['title']} at {aj['company']}")
+            summary_lines.append(f"   URL: {aj['url']}\n")
+        
+        summary_body = "\n".join(summary_lines)
+        summary_email_data = {
+            "subject": f"[{datetime.now().strftime('%Y-%m-%d %H:%M')}] Scheduled Auto-Apply Summary Report",
+            "body": summary_body
+        }
+        logger.info(f"📧 Sending summary report to {TARGET_EMAIL}...")
+        send_cold_email(summary_email_data, to_address=TARGET_EMAIL)
+        logger.info("✅ Summary report sent!")
 
     # 5. Send digest email
     logger.info("\n📨 Phase 5: Sending digest email...")

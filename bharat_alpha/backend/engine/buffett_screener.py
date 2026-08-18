@@ -20,9 +20,10 @@ from backend.engine.fundamentals import analyze_stock_fundamentals
 from backend.engine.trade_planner import generate_trade_plan
 
 # ─── EXPANDED NSE STOCK UNIVERSE ────────────────────────────────────────
-# Curated 100+ high-quality Indian stocks across all sectors
+# Curated 150+ high-quality Indian stocks across all sectors
+# Filters focused exclusively on Large & Midcaps (> 5000 CR Market Capitalization)
 BUFFETT_NSE_UNIVERSE = [
-    # Large Cap — Nifty 50 Core
+    # Large Cap — Nifty 50 Core & Mega Caps
     "RELIANCE.NS", "TCS.NS", "INFY.NS", "HDFCBANK.NS", "ICICIBANK.NS",
     "BHARTIARTL.NS", "ITC.NS", "SBIN.NS", "LT.NS", "BAJFINANCE.NS",
     "HCLTECH.NS", "KOTAKBANK.NS", "TITAN.NS", "SUNPHARMA.NS", "AXISBANK.NS",
@@ -32,7 +33,7 @@ BUFFETT_NSE_UNIVERSE = [
     "HINDUNILVR.NS", "ASIANPAINT.NS", "DRREDDY.NS", "CIPLA.NS", "EICHERMOT.NS",
     "TATAMOTORS.NS", "M&M.NS", "DIVISLAB.NS", "APOLLOHOSP.NS", "BPCL.NS",
     "TATACONSUM.NS", "HEROMOTOCO.NS", "INDUSINDBK.NS", "GRASIM.NS",
-    "BRITANNIA.NS",
+    "BRITANNIA.NS", "TATAPOWER.NS", "JIOFIN.NS", "HAL.NS", "BEL.NS",
 
     # Mid Cap — Nifty Next 50 / Quality Mid Caps
     "DIXON.NS", "TRENT.NS", "BEL.NS", "HAL.NS", "POLYCAB.NS",

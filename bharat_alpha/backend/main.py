@@ -232,6 +232,30 @@ def get_stock_analysis(ticker: str):
     """
     clean_ticker = ticker.upper().strip().replace(".NS", "").replace(".BO", "")
     
+    # Common mappings for user search bar
+    search_mappings = {
+        "TATA POWER": "TATAPOWER",
+        "TATA MOTORS": "TATAMOTORS",
+        "TATA STEEL": "TATASTEEL",
+        "TATA CONSULTANCY": "TCS",
+        "STATE BANK": "SBIN",
+        "BAJAJ FINANCE": "BAJFINANCE",
+        "ASIAN PAINT": "ASIANPAINT",
+        "SUN PHARMA": "SUNPHARMA",
+        "JIO FINANCIAL": "JIOFIN",
+        "RELIANCE IND": "RELIANCE",
+        "HDFC BANK": "HDFCBANK",
+        "ICICI BANK": "ICICIBANK",
+        "AXIS BANK": "AXISBANK",
+        "KOTAK BANK": "KOTAKBANK"
+    }
+    
+    if clean_ticker in search_mappings:
+        clean_ticker = search_mappings[clean_ticker]
+    else:
+        # If still has spaces, just remove them as a best-effort guess
+        clean_ticker = clean_ticker.replace(" ", "")
+    
     # Try NSE first, then BSE
     for suffix in [".NS", ".BO"]:
         symbol = f"{clean_ticker}{suffix}"

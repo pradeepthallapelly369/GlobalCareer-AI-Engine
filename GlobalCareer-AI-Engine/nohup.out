@@ -1,0 +1,21 @@
+2026-08-18 18:41:59,085 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-08-18 18:41:59,087 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-08-18 18:41:59,088 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-08-18 18:41:59,089 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-08-18 18:41:59,089 [INFO] ⏰ Scheduler started — scanning 4x daily (6AM, 12PM, 6PM, 11PM IST)
+2026-08-18 18:41:59,089 [INFO]    Running initial scan now...
+2026-08-18 18:41:59,090 [INFO] ======================================================================
+2026-08-18 18:41:59,090 [INFO] 🚀 GlobalCareer AI Engine — Scan Starting at 2026-08-18 18:41 IST
+2026-08-18 18:41:59,090 [INFO] ======================================================================
+2026-08-18 18:41:59,090 [INFO] 
+📡 Phase 1: Aggregating jobs from 300+ portals across 80+ countries...
+2026-08-18 18:41:59,090 [INFO] 🌍 Starting global job scan across 142 portals...
+2026-08-18 18:41:59,090 [INFO]   📡 Scraping 78 API/RSS portals in parallel...
+2026-08-18 18:42:00,622 [INFO]     ✅ Himalayas: 9 jobs
+2026-08-18 18:42:02,260 [INFO]     ✅ RemoteOK: 10 jobs
+2026-08-18 18:42:02,821 [INFO]     ✅ Remotive: 2 jobs
+2026-08-18 18:42:08,087 [INFO]     ✅ WeWorkRemotely: 17 jobs
+2026-08-18 18:42:09,816 [INFO]     ✅ WeWorkRemotely-Data: 16 jobs
+2026-08-18 18:42:17,065 [INFO]     ✅ Arbeitnow-EU: 14 jobs
+2026-08-18 18:42:23,724 [INFO]     ✅ Landing.jobs-PT: 4 jobs
+2026-08-18 18:42:48,550 [INFO]     ✅ KDnuggets: 3 jobs

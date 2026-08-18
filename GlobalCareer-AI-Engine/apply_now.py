@@ -27,7 +27,7 @@ def apply_to_top_jobs():
     # Fetch jobs that are high matches and not yet marked as 'Applied'
     cursor.execute("""
         SELECT * FROM applications 
-        WHERE match_score >= 80 AND status != 'Applied'
+        WHERE match_score >= 50 AND status != 'Applied'
         ORDER BY match_score DESC 
         LIMIT 5
     """)
@@ -90,13 +90,16 @@ def apply_to_top_jobs():
             )
             
             print(f"   📧 Sending drafted application package to {TARGET_EMAIL}...")
-            send_cold_email(email_data, to_address=TARGET_EMAIL)
+            success = send_cold_email(email_data, to_address=TARGET_EMAIL)
             
-            # Mark as applied in DB
-            update_status(job_id, "Applied", "Auto-tailored and drafted")
-            print("   ✅ Status updated to 'Applied'\n")
-            
-            applied_jobs.append({"title": title, "company": company, "url": job.get("url", "N/A")})
+            if success:
+                # Mark as applied in DB
+                update_status(job_id, "Applied", "Auto-tailored and drafted")
+                print("   ✅ Status updated to 'Applied'\n")
+                
+                applied_jobs.append({"title": title, "company": company, "url": job.get("url", "N/A")})
+            else:
+                print("   ❌ Failed to send email. Status not updated.\n")
             
         except Exception as e:
             print(f"   ❌ Failed to process application: {e}\n")

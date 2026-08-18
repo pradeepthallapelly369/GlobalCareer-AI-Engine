@@ -75,7 +75,8 @@ def run_scan():
     applied_jobs_summary = []
     
     for job, email_data in zip(matched_jobs, cold_emails):
-        if job.get("match_score", 0) >= 80:
+        if job.get("match_score", 0) >= 50:
+            tailored = None
             if optimize_resume_for_jd:
                 logger.info(f"   Auto-tailoring assets for: {job.get('title')}...")
                 try:
@@ -102,10 +103,11 @@ def run_scan():
                 f"{tailored.get('cover_letter_markdown', '')}\n\n"
                 f"--- Tailored Resume ---\n\n"
                 f"{tailored.get('tailored_resume_markdown', '')}"
-            ) if 'tailored' in locals() else email_data["body"]
+            ) if tailored else email_data["body"]
             
-            send_cold_email(email_data, to_address=TARGET_EMAIL)
-            applied_jobs_summary.append({"title": job.get("title", ""), "company": job.get("company", ""), "url": job.get("url", "N/A")})
+            success = send_cold_email(email_data, to_address=TARGET_EMAIL)
+            if success:
+                applied_jobs_summary.append({"title": job.get("title", ""), "company": job.get("company", ""), "url": job.get("url", "N/A")})
 
     logger.info(f"   {len(cold_emails)} cold emails generated, {tailored_count} resumes tailored")
     

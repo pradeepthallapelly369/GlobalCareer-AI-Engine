@@ -173,17 +173,13 @@ def run_scheduler():
 
     scheduler = BlockingScheduler()
 
-    # 4 daily scans (IST = UTC+5:30, so convert to UTC)
-    # 06:00 IST = 00:30 UTC
-    # 12:00 IST = 06:30 UTC
-    # 18:00 IST = 12:30 UTC
-    # 23:00 IST = 17:30 UTC
-    scheduler.add_job(run_scan, CronTrigger(hour=0, minute=30), id="scan_morning")
-    scheduler.add_job(run_scan, CronTrigger(hour=6, minute=30), id="scan_midday")
-    scheduler.add_job(run_scan, CronTrigger(hour=12, minute=30), id="scan_evening")
-    scheduler.add_job(run_scan, CronTrigger(hour=17, minute=30), id="scan_night")
+    # 2 daily scans (Server local time is IST)
+    # 09:30 AM IST
+    # 09:30 PM IST (21:30)
+    scheduler.add_job(run_scan, CronTrigger(hour=9, minute=30), id="scan_morning")
+    scheduler.add_job(run_scan, CronTrigger(hour=21, minute=30), id="scan_evening")
 
-    logger.info("⏰ Scheduler started — scanning 4x daily (6AM, 12PM, 6PM, 11PM IST)")
+    logger.info("⏰ Scheduler started — scanning 2x daily (9:30AM and 9:30PM IST)")
     logger.info("   Running initial scan now...")
     run_scan()
 

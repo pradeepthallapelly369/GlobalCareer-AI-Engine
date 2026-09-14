@@ -25,11 +25,21 @@ BI_QLIK_QUERIES = [
 POWER_BI_TABLEAU_QUERIES = [
     "Power BI Developer", "Power BI Engineer", "Power BI Architect",
     "Tableau Developer", "Looker Developer", "MicroStrategy Developer",
+    # Qlik to Power BI Migration specific
+    "Power BI Migration Specialist", "Qlik to Power BI Migration Lead",
+    "Power BI Implementation Consultant", "BI Migration to Power BI",
+    "Power BI Adoption Lead", "Microsoft Fabric Migration Engineer",
 ]
 
 DATA_MIGRATION_QUERIES = [
     "Data Migration Engineer", "Data Migration Specialist",
     "BI Migration Engineer", "Data Integration Engineer",
+    # Qlik to Power BI Migration specific
+    "Qlik to Power BI Migration", "Qlik Sense to Power BI Migration",
+    "QlikView to Power BI Migration", "Qlik Migration Specialist",
+    "BI Platform Migration", "Qlik Sense Migration Lead",
+    "Power BI Migration Architect", "Qlik to Power BI Consultant",
+    "Dashboard Migration Engineer", "BI Modernization Engineer",
 ]
 
 SQL_DATABASE_QUERIES = [
@@ -63,9 +73,17 @@ CORE_SKILLS_KEYWORDS = [
     "analytics engineering", "business intelligence", "bi developer",
     "star schema", "snowflake schema", "data modeling",
     "hadoop", "hive", "spark", "airflow", "data lake", "lakehouse",
+    # Qlik to Power BI Migration specific
+    "qlik to power bi", "qlik sense to power bi", "qlikview to power bi",
+    "power bi migration", "bi migration", "dashboard migration",
+    "qlik migration", "bi modernization", "fabric migration",
+    "power bi implementation", "qlik replacement", "bi platform migration",
 ]
 
 PREMIUM_MATCH_KEYWORDS = [
     "qlik", "qlik sense", "qlikview", "databricks", "dbt",
     "data migration", "bi developer", "business intelligence engineer",
+    # Qlik to Power BI Migration premium keywords
+    "qlik to power bi", "power bi migration", "bi migration",
+    "qlik migration", "dashboard migration", "bi modernization",
 ]

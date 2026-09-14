@@ -16,6 +16,7 @@ from backend.engine.commodities_bonds import get_commodities_data, get_bonds_and
 from backend.engine.portfolio_advisor import calculate_sip_growth, generate_asset_allocation
 from backend.engine.buffett_screener import run_buffett_scan
 from backend.engine.market_monitor import get_daily_market_movers
+from backend.engine.tauric_research import drona_engine
 
 app = FastAPI(
     title="BharatAlpha AI - Stock Market Investment & Algo-Trading API",
@@ -247,7 +248,9 @@ def get_stock_analysis(ticker: str):
         "HDFC BANK": "HDFCBANK",
         "ICICI BANK": "ICICIBANK",
         "AXIS BANK": "AXISBANK",
-        "KOTAK BANK": "KOTAKBANK"
+        "KOTAK BANK": "KOTAKBANK",
+        "AEROFLEX INDUSTRIES LTD": "AEROFLEX",
+        "AEROFLEX INDUSTRIES": "AEROFLEX"
     }
     
     if clean_ticker in search_mappings:
@@ -509,3 +512,43 @@ def get_buffett_scan(max_stocks: int = Query(30, ge=5, le=100)):
     except Exception as e:
         print(f"Buffett scan error: {e}")
         return {"status": "error", "message": str(e)}
+
+
+@app.get("/api/deep-research/{ticker}")
+def get_deep_research(ticker: str, date: str = Query(None)):
+    """
+    Drona AI Deep Research — Multi-Agent TradingAgents Analysis.
+    Orchestrates Fundamental, Technical, Sentiment, and News analysts
+    with Bull/Bear debate for comprehensive trading decisions.
+    Powered by TauricResearch/TradingAgents framework.
+    """
+    try:
+        result = drona_engine.run_deep_research(ticker, date)
+        return sanitize_json_obj(result)
+    except Exception as e:
+        print(f"Deep research error for {ticker}: {e}")
+        return {"status": "error", "message": str(e)}
+
+
+@app.get("/api/deep-research/status")
+def get_deep_research_status():
+    """
+    Check if the Drona AI (TradingAgents) deep research engine is available.
+    """
+    return {
+        "status": "success",
+        "drona_available": drona_engine.is_available(),
+        "engine": "TauricResearch/TradingAgents v0.4.0",
+        "llm_backend": "Ollama (llama3.1:8b)",
+        "agents": [
+            "Fundamental Analyst",
+            "Technical Analyst",
+            "Sentiment Analyst",
+            "News Analyst",
+            "Bull Researcher",
+            "Bear Researcher",
+            "Trader Agent",
+            "Risk Manager",
+            "Portfolio Manager"
+        ]
+    }

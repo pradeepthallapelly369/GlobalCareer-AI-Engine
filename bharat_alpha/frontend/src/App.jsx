@@ -450,6 +450,7 @@ export default function App() {
                 { id: 'arya', name: 'Arya AI ⚡', role: 'Options Trader', data: agentSuggestions?.arya, color: '#FF9800' },
                 { id: 'vikram', name: 'Vikram AI 🏹', role: 'Swing Momentum', data: agentSuggestions?.vikram, color: '#00E676' },
                 { id: 'kautilya', name: 'Kautilya AI 🛡️', role: 'Risk Guardian', data: agentSuggestions?.kautilya, color: '#E91E63' },
+                { id: 'drona', name: 'Drona AI 🔬', role: 'Deep Research', data: agentSuggestions?.drona, color: '#9C27B0' },
               ].map((ag) => (
                 <div key={ag.id} className="glass-panel" style={{ padding: 16, borderLeft: `4px solid ${ag.color}` }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -495,7 +496,8 @@ export default function App() {
                   { id: 'chanakya', label: '📈 Chanakya (Wealth)' },
                   { id: 'arya', label: '⚡ Arya (Options)' },
                   { id: 'vikram', label: '🏹 Vikram (Swing)' },
-                  { id: 'kautilya', label: '🛡️ Kautilya (Risk)' }
+                  { id: 'kautilya', label: '🛡️ Kautilya (Risk)' },
+                  { id: 'drona', label: '🔬 Drona (Research)' }
                 ].map((a) => (
                   <button
                     key={a.id}
@@ -569,7 +571,8 @@ export default function App() {
                   "Suggest top stock for long term",
                   "What option strategy should I run on NIFTY today?",
                   "Show VCP breakout setup",
-                  "Audit my portfolio risk & sizing"
+                  "Audit my portfolio risk & sizing",
+                  "Deep research on RELIANCE"
                 ].map((prompt, i) => (
                   <button
                     key={i}

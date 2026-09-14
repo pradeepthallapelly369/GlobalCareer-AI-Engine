@@ -193,6 +193,13 @@ PORTALS = [
     {"name": "LinkedIn-Slovenia", "type": "JOBSPY", "site": "linkedin", "region": "Slovenia", "country_linkedin": "Slovenia", "category": "major"},
     {"name": "LinkedIn-Luxembourg", "type": "JOBSPY", "site": "linkedin", "region": "Luxembourg", "country_linkedin": "Luxembourg", "category": "major"},
     {"name": "LinkedIn-Iceland", "type": "JOBSPY", "site": "linkedin", "region": "Iceland", "country_linkedin": "Iceland", "category": "major"},
+    {"name": "LinkedIn-Liechtenstein", "type": "JOBSPY", "site": "linkedin", "region": "Liechtenstein", "country_linkedin": "Liechtenstein", "category": "major"},
+    {"name": "LinkedIn-Monaco", "type": "JOBSPY", "site": "linkedin", "region": "Monaco", "country_linkedin": "Monaco", "category": "major"},
+    {"name": "LinkedIn-SanMarino", "type": "JOBSPY", "site": "linkedin", "region": "San Marino", "country_linkedin": "San Marino", "category": "major"},
+    {"name": "LinkedIn-Vatican", "type": "JOBSPY", "site": "linkedin", "region": "Vatican City", "country_linkedin": "Vatican City", "category": "major"},
+    {"name": "LinkedIn-Andorra", "type": "JOBSPY", "site": "linkedin", "region": "Andorra", "country_linkedin": "Andorra", "category": "major"},
+    {"name": "LinkedIn-Malta", "type": "JOBSPY", "site": "linkedin", "region": "Malta", "country_linkedin": "Malta", "category": "major"},
+    {"name": "LinkedIn-Cyprus", "type": "JOBSPY", "site": "linkedin", "region": "Cyprus", "country_linkedin": "Cyprus", "category": "major"},
 ]
 
 # ── Quick stats ──────────────────────────────────────────────────────────────

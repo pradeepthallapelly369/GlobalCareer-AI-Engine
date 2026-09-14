@@ -10,13 +10,20 @@ candidate:
   experience_years: "6+ Years"
 
 professional_summary: >
-  Senior BI Developer and Data Engineer with 6+ years delivering enterprise analytics solutions for banking, insurance and service clients — including a UK banking client — using Qlik Sense, SQL, dbt, GitHub and Databricks. Currently Technical Lead on an end-to-end Qlik-to-Power BI/Databricks migration, owning validation through dbt tests and AI-agent-assisted data reconciliation. Delivered 100+ production dashboards, ~30% performance improvement, and 20% data redundancy reduction. Experienced working across distributed, cross-time-zone teams and comfortable owning delivery independently in remote/contract engagements. Open to full-time remote, contract, and consulting roles with international teams.
+  Senior BI Developer and Data Engineer with 6+ years delivering enterprise analytics solutions for banking, insurance and service clients — including a UK banking client — using Qlik Sense, SQL, dbt, GitHub and Databricks. Currently Technical Lead on an end-to-end Qlik-to-Power BI/Databricks migration, owning validation through dbt tests and AI-agent-assisted data reconciliation. Expert in Qlik Sense to Power BI migration: dashboard conversion (Set Analysis → DAX), QVD layer redesign, NPrinting → Paginated Reports, data model optimization, and Microsoft Fabric adoption. Delivered 100+ production dashboards, ~30% performance improvement, and 20% data redundancy reduction. Experienced working across distributed, cross-time-zone teams and comfortable owning delivery independently in remote/contract engagements. Open to full-time remote, contract, and consulting roles with international teams.
 
 core_skills:
   bi_development:
     - Qlik Sense (Dashboard Design, Data Modeling, Scripting, Set Analysis, QVD Creation, Security Rules, Performance Optimization)
     - NPrinting, Ad-hoc Reporting, KPI Dashboards, Figma-to-BI UX Implementation
-    - Power BI (migration target platform)
+    - Power BI (migration target platform: DAX, Data Modeling, Row-Level Security, Power BI Service, Paginated Reports)
+    - Qlik to Power BI Migration (Set Analysis → DAX, QVD → Power Query, NPrinting → Paginated Reports, Dashboard Conversion)
+  bi_migration:
+    - Qlik Sense → Power BI / Microsoft Fabric Migration
+    - QlikView → Power BI Conversion
+    - BI Platform Modernization & Strategy
+    - Data Model Redesign (Star Schema, Snowflake, OneLake)
+    - Migration Validation & Reconciliation (dbt tests, AI-assisted)
   data_engineering_etl:
     - SQL, Databricks, dbt (modular modeling, schema tests, data quality checks)
     - ETL/ELT Pipeline Design, Incremental Loads, Data Transformations, Data Warehousing
@@ -34,6 +41,7 @@ work_experience:
     period: Sep 2025 – Present
     highlights:
       - Own the end-to-end Qlik Sense to Databricks SQL migration, converting load scripts and business logic into modular dbt SQL models validated through dbt tests, AI Agents and data reconciliation.
+      - **Lead Qlik Sense to Power BI / Microsoft Fabric migration**: Convert 50+ dashboards (Set Analysis → DAX, QVD → Power Query, NPrinting → Paginated Reports), redesign data models for OneLake/Fabric, implement Row-Level Security and CI/CD pipelines.
       - Built reusable dbt models in VS Code following staging/intermediate/marts layering, and integrated AI agents/MCP servers to auto-detect data mismatches — accelerating reconciliation cycles.
       - Managed Git/GitHub version control, code reviews, and Agile sprint delivery with full migration documentation for stakeholder governance.
 
@@ -55,6 +63,7 @@ work_experience:
     period: Jun 2020 – Sep 2024
     highlights:
       - Designed and developed 100+ enterprise Qlik Sense dashboards, improving application performance by ~30% and supporting governance and reporting automation across banking analytics.
+      - **Led Qlik Sense to Power BI migration pilot**: Converted 20+ dashboards (Set Analysis → DAX, QVD redesign, NPrinting → Paginated Reports), established migration framework and best practices.
       - Reduced data redundancy by 20% through schema redesign, improving compliance and report accuracy across loan portfolio analytics; implemented NPrinting for automated report scheduling.
       - Acted as Business Analyst leading stakeholder requirements gathering and BRD/FRS documentation; mentored junior developers and delivered internal Qlik Sense training with hands-on Hadoop/Hive/Impala exposure.
 

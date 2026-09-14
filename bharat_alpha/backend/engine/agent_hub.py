@@ -66,6 +66,13 @@ class MultiAgentEngine:
                 "specialty": "Position Sizing Math, Capital Preservation, Stop-Loss Rules & Drawdown Controls",
                 "avatar_color": "#E91E63",
                 "badge": "RISK"
+            },
+            "drona": {
+                "name": "Drona AI",
+                "role": "Deep Multi-Agent Research 🔬",
+                "specialty": "TauricResearch TradingAgents — Fundamental, Technical, Sentiment & News Analysts with Bull/Bear Debate",
+                "avatar_color": "#9C27B0",
+                "badge": "RESEARCH"
             }
         }
 
@@ -108,6 +115,8 @@ class MultiAgentEngine:
                 agent_id = "vikram"
             elif any(re.search(rf"\b{w}\b", query_lower) for w in ["risk", "capital", "stop loss", "position size", "margin", "drawdown", "allocation"]):
                 agent_id = "kautilya"
+            elif any(w in query_lower for w in ["deep research", "research", "drona", "multi agent", "tauric", "comprehensive analysis", "full analysis", "deep analysis"]):
+                agent_id = "drona"
             else:
                 agent_id = "chanakya"
         else:
@@ -126,6 +135,8 @@ class MultiAgentEngine:
                 res = self._run_arya_agent(user_query, query_lower, capital)
             elif agent_id == "vikram":
                 res = self._run_vikram_agent(user_query, query_lower, capital)
+            elif agent_id == "drona":
+                res = self._run_drona_agent(user_query, query_lower, capital)
             else:
                 res = self._run_kautilya_agent(user_query, query_lower, capital)
             res["agent_info"] = profile
@@ -192,7 +203,7 @@ class MultiAgentEngine:
             ("CDSL", "CDSL"), ("CAMS", "CAMS"),
             ("TCS", "TCS"), ("ITC", "ITC"), ("SBI", "SBIN"),
             ("BEL", "BEL"), ("HAL", "HAL"), ("RIL", "RELIANCE"),
-            ("M&M", "M&M"), ("LT", "LT"),
+            ("M&M", "M&M"), ("LT", "LT"), ("AEROFLEX", "AEROFLEX"),
         ]
 
         found_ticker = None
@@ -213,7 +224,12 @@ class MultiAgentEngine:
                 "INVESTMENT", "SHOULD", "PRICE", "TARGET", "VALUE",
                 "FUND", "MUTUAL", "PORTFOLIO", "RETURN", "GROWTH",
                 "TECHNOLOGIES", "LIMITED", "INDUSTRIES", "LTD", "INDIA",
-                "MULTIBAGGER", "MULTIBAGER", "BAGER"
+                "MULTIBAGGER", "MULTIBAGER", "BAGER", "TRIED", "AGAIN",
+                "WRONG", "RIGHT", "PLEASE", "JUST", "BUT", "AND", "ANY",
+                "NOT", "YES", "DID", "DOES", "HAVE", "HAD", "HAS", "BEEN",
+                "WAS", "WERE", "ARE", "GET", "GOT", "NEW", "NOW", "THEN",
+                "COULD", "WOULD", "WILL", "SHALL", "THEY", "THEM", "THEIR",
+                "MINE", "OURS", "YOUR", "YOURS"
             }
             for w in words:
                 if w not in stop_words and len(w) >= 3:
@@ -667,8 +683,78 @@ class MultiAgentEngine:
             ]
         }
 
+    def _run_drona_agent(self, query: str, query_lower: str, capital: float) -> Dict[str, Any]:
+        """Drona AI Logic: Deep Multi-Agent Research via TauricResearch TradingAgents"""
+        from backend.engine.tauric_research import drona_engine
+
+        # Extract ticker from query
+        stock_analysis = self._extract_ticker_and_analyze(query)
+        ticker = None
+        if stock_analysis and stock_analysis.get("status") == "success":
+            ticker = stock_analysis.get("ticker", "")
+
+        if not ticker:
+            # Try to find ticker in query
+            import re
+            words = re.findall(r'\b[A-Z]{3,12}\b', query.upper())
+            stop_words = {"THE", "BUY", "SELL", "WHAT", "SHOW", "TELL", "DEEP", "RESEARCH", "ANALYSIS", "FULL", "DRONA"}
+            for w in words:
+                if w not in stop_words:
+                    ticker = w
+                    break
+
+        if not ticker:
+            ticker = "RELIANCE"  # Default
+
+        # Run deep research
+        result = drona_engine.run_deep_research(ticker)
+        decision = result.get("decision", {})
+
+        action = decision.get("action", "HOLD")
+        confidence = decision.get("confidence", 50)
+        reasoning = decision.get("reasoning", "Analysis in progress...")
+        agents = decision.get("agents_involved", [])
+        engine = result.get("engine", "unknown")
+
+        reply = (
+            f"🔬 **Drona AI Deep Multi-Agent Research Report for {ticker}**\n\n"
+            f"**Decision**: {action} (Confidence: {confidence}%)\n"
+            f"**Engine**: {engine}\n\n"
+            f"**Research Summary**:\n{reasoning[:1500]}\n\n"
+            f"**Agents Consulted** ({len(agents)}): {', '.join(agents[:5])}{'...' if len(agents) > 5 else ''}"
+        )
+
+        trade_action = None
+        if action in ["BUY", "STRONG_BUY"]:
+            trade_action = {
+                "type": "DEEP_RESEARCH_BUY",
+                "symbol": ticker,
+                "action": "BUY",
+                "confidence": confidence,
+                "mode": "paper"
+            }
+        elif action in ["SELL", "STRONG_SELL"]:
+            trade_action = {
+                "type": "DEEP_RESEARCH_SELL",
+                "symbol": ticker,
+                "action": "SELL",
+                "confidence": confidence,
+                "mode": "paper"
+            }
+
+        return {
+            "status": "success",
+            "reply": reply,
+            "actionable_trade": trade_action,
+            "proactive_suggestions": [
+                f"Run deep research on SBIN",
+                f"Full analysis of KPITTECH",
+                "Compare RELIANCE vs TCS deep research"
+            ]
+        }
+
     def get_proactive_agent_suggestions(self) -> Dict[str, Any]:
-        """Returns live recommendations from all 4 specialized agents."""
+        """Returns live recommendations from all 5 specialized agents."""
         return {
             "chanakya": {
                 "title": "Top Long-Term Compounder",
@@ -697,5 +783,12 @@ class MultiAgentEngine:
                 "action": "PROTECTED",
                 "target": "1.5% Max Risk",
                 "reason": "Capital preservation limits enforced."
+            },
+            "drona": {
+                "title": "Deep Multi-Agent Research",
+                "ticker": "SBIN",
+                "action": "DEEP RESEARCH",
+                "target": "9-Agent Consensus",
+                "reason": "Bull/Bear debate with sentiment & macro analysis."
             }
         }

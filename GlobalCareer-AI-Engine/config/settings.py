@@ -40,7 +40,7 @@ CANDIDATE = {
 # ── Job Search Parameters ────────────────────────────────────────────────────
 MATCH_THRESHOLD = 70  # Minimum match score to keep a job
 MAX_JOBS_PER_SCAN = 500  # Max jobs to process per scan cycle
-HOURS_OLD_THRESHOLD = 168  # Look at jobs posted in last 168 hours (1 week)
+HOURS_OLD_THRESHOLD = 96  # Look at jobs posted in last 96 hours
 JOBSPY_RESULTS_PER_QUERY = 15  # Results per jobspy query
 
 # ── Scheduling ───────────────────────────────────────────────────────────────
@@ -52,16 +52,29 @@ SCAN_SCHEDULE_IST = [
 ]
 
 # ── Foreign Currency Filter ──────────────────────────────────────────────────
+# All major world currencies that convert favorably to INR (1 unit > ~10 INR)
 FOREIGN_CURRENCIES = [
-    "USD", "EUR", "GBP", "AUD", "CAD", "SGD", "AED", "CHF", "SEK", "NOK",
-    "DKK", "NZD", "JPY", "HKD", "KRW", "TWD", "ILS", "SAR", "QAR", "BHD"
+    # Major reserve currencies
+    "USD", "EUR", "GBP", "AUD", "CAD", "CHF", "SGD", "AED",
+    # European currencies (non-Euro)
+    "SEK", "NOK", "DKK", "PLN", "CZK", "HUF", "RON", "BGN", "HRK", "ISK",
+    # Asia-Pacific
+    "JPY", "HKD", "KRW", "TWD", "MYR", "THB", "IDR", "PHP", "VND", "INR",
+    # Middle East
+    "SAR", "QAR", "BHD", "OMR", "KWD", "JOD", "LBP", "ILS",
+    # Americas
+    "MXN", "BRL", "ARS", "CLP", "COP", "PEN", "UYU",
+    # Others
+    "NZD", "ZAR", "TRY", "RUB", "CNY", "MAD", "EGP", "NGN", "KES", "GHS"
 ]
 
 REJECT_KEYWORDS = [
     "onsite india", "india only",
     "work from office india", "hyderabad onsite", "bangalore onsite",
     "pune onsite", "mumbai onsite", "chennai onsite", "noida onsite",
-    "gurgaon onsite", "delhi onsite", "10 lpa", "15 lpa", "20 lpa", "25 lpa"
+    "gurgaon onsite", "delhi onsite", "10 lpa", "15 lpa", "20 lpa", "25 lpa",
+    "30 lpa", "35 lpa", "5 lpa", "6 lpa", "7 lpa", "8 lpa", "9 lpa",
+    "indian rupee", "inr only", "local salary", "india salary", "onsite required"
 ]
 
 # ── Paths ────────────────────────────────────────────────────────────────────

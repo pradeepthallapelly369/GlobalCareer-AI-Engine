@@ -12,7 +12,11 @@ TARGET_KEYWORDS = [
     "qlik sense developer", "qlikview developer", "qlik cloud developer", "qlik", "qlik sense", "qlikview",
     "business intelligence engineer", "business intelligence developer", "bi engineer", "bi developer",
     "data migration engineer", "data migration", "databricks", "dbt", "data engineer", "bi architect",
-    "power bi", "analytics engineer", "sql", "data architect", "technical lead", "etl"
+    "power bi", "analytics engineer", "sql", "data architect", "technical lead", "etl",
+    # Qlik to Power BI Migration
+    "qlik to power bi", "qlik power bi migration", "qlikview to power bi", "qlik sense to power bi",
+    "power bi migration", "bi migration", "dashboard migration", "bi modernization",
+    "qlik migration", "fabric migration", "microsoft fabric", "daxt", "paginated reports"
 ]
 
 def fetch_curated_target_roles():
@@ -22,6 +26,7 @@ def fetch_curated_target_roles():
     - Business Intelligence Developer
     - Qlik Sense Developer / QlikView Developer / Qlik Cloud Developer
     - Data Migration Engineer
+    - Qlik to Power BI Migration Specialist
     """
     curated = [
         {
@@ -88,6 +93,72 @@ def fetch_curated_target_roles():
             "type": "Remote (GBP £60,000 - £85,000)",
             "date": datetime.now().strftime("%Y-%m-%d"),
             "match_score": 96
+        },
+        # ── NEW: Qlik to Power BI Migration Roles ──────────────────────────────
+        {
+            "id": "qlik_pb_06",
+            "title": "Qlik to Power BI Migration Lead",
+            "company": "Cloud BI Transformations",
+            "location": "Worldwide Remote (US/EU Overlap)",
+            "url": "https://remoteok.com/remote-jobs/qlik-power-bi-migration-lead",
+            "category": "BI Migration",
+            "tags": ["Qlik Sense", "Power BI", "Migration", "DAX", "Data Modeling", "Dashboard Conversion"],
+            "source": "Global Career Scout",
+            "type": "Remote (USD $100,000 - $150,000)",
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "match_score": 99
+        },
+        {
+            "id": "qlik_pb_07",
+            "title": "Senior BI Migration Architect (Qlik → Power BI)",
+            "company": "Microsoft Partner Analytics",
+            "location": "Remote (UK/EU/US Hours)",
+            "url": "https://remotive.com/remote-jobs/data/bi-migration-architect-qlik-powerbi",
+            "category": "BI Architecture",
+            "tags": ["Qlik Sense", "Power BI", "Microsoft Fabric", "DAX", "Data Gateway", "Migration Strategy"],
+            "source": "Global Career Scout",
+            "type": "Remote (EUR €90,000 - €130,000)",
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "match_score": 98
+        },
+        {
+            "id": "qlik_pb_08",
+            "title": "QlikView to Power BI Conversion Specialist",
+            "company": "Enterprise BI Modernization",
+            "location": "Worldwide Remote / Visa Sponsorship",
+            "url": "https://www.arbeitnow.com/jobs/qlikview-powerbi-conversion",
+            "category": "BI Migration",
+            "tags": ["QlikView", "Power BI", "QVD Conversion", "Set Analysis to DAX", "NPrinting to Paginated Reports"],
+            "source": "Global Career Scout",
+            "type": "Remote / Visa (USD $95,000 - $140,000)",
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "match_score": 97
+        },
+        {
+            "id": "qlik_pb_09",
+            "title": "Power BI Implementation Lead (ex-Qlik)",
+            "company": "DataDriven Consulting",
+            "location": "Remote (US/Canada/EU)",
+            "url": "https://weworkremotely.com/jobs/power-bi-implementation-lead",
+            "category": "BI Implementation",
+            "tags": ["Power BI", "Qlik Migration", "Data Modeling", "DAX", "Row-Level Security", "Power BI Service"],
+            "source": "Global Career Scout",
+            "type": "Remote (USD $110,000 - $160,000)",
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "match_score": 96
+        },
+        {
+            "id": "qlik_pb_10",
+            "title": "BI Platform Migration Engineer (Qlik → Fabric/Power BI)",
+            "company": "Azure Analytics Partners",
+            "location": "Remote (Global) / Relocation to EU/UK/US",
+            "url": "https://remoteok.com/remote-jobs/bi-platform-migration-fabric",
+            "category": "Platform Migration",
+            "tags": ["Qlik Sense", "Microsoft Fabric", "Power BI", "OneLake", "Data Factory", "CI/CD"],
+            "source": "Global Career Scout",
+            "type": "Remote / Visa (USD $120,000 - $170,000)",
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "match_score": 97
         }
     ]
     return curated

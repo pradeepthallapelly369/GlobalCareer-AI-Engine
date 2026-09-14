@@ -449,10 +449,15 @@ def aggregate_all_jobs(max_workers=10):
     # Scrape JOBSPY portals (sequentially to avoid bans, limit to top countries)
     priority_jobspy = [p for p in jobspy_portals if p.get("region") in [
         "US", "UK", "Germany", "Canada", "Australia", "Netherlands",
-        "Singapore", "UAE", "Ireland", "Sweden", "Switzerland", "Global"
+        "Singapore", "UAE", "Ireland", "Sweden", "Switzerland", "Global",
+        "France", "Finland", "Denmark", "Norway", "Belgium", "Austria",
+        "Spain", "Italy", "Poland", "Portugal", "Czech Republic",
+        "Malta", "Cyprus", "Luxembourg", "Saudi Arabia", "Qatar", "Bahrain",
+        "Kuwait", "Japan", "South Korea", "Hong Kong", "Taiwan",
+        "South Africa", "Israel", "New Zealand"
     ]]
     logger.info(f"  🔍 Scraping {len(priority_jobspy)} priority JobSpy portals...")
-    for portal in priority_jobspy[:20]:  # Limit to top 20 to avoid rate limits
+    for portal in priority_jobspy[:35]:  # Limit to top 35 to cover all target countries
         try:
             jobs = scrape_jobspy_portal(portal, COMPACT_QUERIES[:3])
             count = 0

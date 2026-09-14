@@ -8,24 +8,41 @@ BharatAlpha AI — Warren Buffett Grade Deep Fundamental Analysis Engine
   4. Valuation Discipline (Graham's Intrinsic Value)
   5. Dividend & Shareholder Returns
   6. Composite Buffett Score (0-100)
+
+Fixes applied:
+  - Proper validation of yfinance returned values
+  - Range checks to prevent absurd computed metrics
+  - Robust None/NaN handling throughout
+  - Logging of fallback usage for debugging
 """
 
 import yfinance as yf
 import math
+import sys
 
 
 def _safe_pct(val, default=0.0):
-    """Convert a decimal ratio (0.18) to percentage (18.0), or return default."""
+    """Convert a decimal ratio (0.18) to percentage (18.0), or return default.
+    Handles None, NaN, and inf values gracefully.
+    """
     if val is None:
         return default
     try:
-        return round(float(val) * 100, 2)
+        f = float(val)
+        if math.isnan(f) or math.isinf(f):
+            return default
+        result = round(f * 100, 2)
+        # Sanity check: percentages above 10000% or below -10000% are almost certainly wrong
+        if abs(result) > 10000:
+            print(f"[FUND-WARN] Suspiciously large percentage value: {result}% (raw={val}), using default={default}")
+            return default
+        return result
     except (ValueError, TypeError):
         return default
 
 
 def _safe_float(val, default=0.0):
-    """Safely convert to float."""
+    """Safely convert to float with NaN/Inf protection."""
     if val is None:
         return default
     try:
@@ -34,6 +51,21 @@ def _safe_float(val, default=0.0):
             return default
         return round(f, 2)
     except (ValueError, TypeError):
+        return default
+
+
+def _safe_div(numerator, denominator, default=0.0):
+    """Safe division that handles zero, None, NaN."""
+    try:
+        n = float(numerator) if numerator is not None else 0.0
+        d = float(denominator) if denominator is not None else 0.0
+        if d == 0 or math.isnan(d) or math.isinf(d) or math.isnan(n) or math.isinf(n):
+            return default
+        result = n / d
+        if math.isnan(result) or math.isinf(result):
+            return default
+        return round(result, 4)
+    except (ValueError, TypeError, ZeroDivisionError):
         return default
 
 
@@ -49,11 +81,29 @@ def analyze_stock_fundamentals(ticker_symbol: str) -> dict:
         symbol = f"{symbol}.NS"
 
     info = {}
+    data_source = "live"
     try:
         ticker = yf.Ticker(symbol)
         info = ticker.info or {}
+        # Validate that we got real data (not just an empty dict or error)
+        if not info or info.get("regularMarketPrice") is None and info.get("currentPrice") is None:
+            # Try BSE if NSE failed
+            if symbol.endswith(".NS"):
+                alt_symbol = symbol.replace(".NS", ".BO")
+                try:
+                    ticker2 = yf.Ticker(alt_symbol)
+                    info2 = ticker2.info or {}
+                    if info2.get("regularMarketPrice") or info2.get("currentPrice"):
+                        info = info2
+                        symbol = alt_symbol
+                except Exception:
+                    pass
+            if not info or (info.get("regularMarketPrice") is None and info.get("currentPrice") is None):
+                data_source = "fallback"
+                print(f"[FUND-WARN] No price data from yfinance for {symbol}, using defaults")
     except Exception as e:
-        print(f"Error fetching ticker info for {symbol}: {e}")
+        data_source = "fallback"
+        print(f"[FUND-ERROR] Error fetching ticker info for {symbol}: {e}")
 
     # ─── 1. PROFITABILITY MOAT ──────────────────────────────────────────
     roe_pct = _safe_pct(info.get("returnOnEquity"), 12.0)
@@ -65,20 +115,27 @@ def analyze_stock_fundamentals(ticker_symbol: str) -> dict:
     # Free Cash Flow Yield = FCF / Market Cap
     fcf = _safe_float(info.get("freeCashflow"), 0)
     market_cap = _safe_float(info.get("marketCap"), 1)
-    fcf_yield_pct = round((fcf / market_cap) * 100, 2) if market_cap > 0 else 0.0
+    if market_cap <= 0:
+        market_cap = 1  # Prevent division by zero
+    fcf_yield_pct = round(_safe_div(fcf, market_cap, 0.0) * 100, 2)
 
     # Operating Cash Flow / Net Income ratio (earnings quality)
     op_cashflow = _safe_float(info.get("operatingCashflow"), 0)
     net_income = _safe_float(info.get("netIncomeToCommon"), 1)
-    cash_flow_quality = round(op_cashflow / net_income, 2) if net_income != 0 else 1.0
+    cash_flow_quality = round(_safe_div(op_cashflow, net_income, 1.0), 2)
+    # Clamp to reasonable range
+    cash_flow_quality = max(-5.0, min(10.0, cash_flow_quality))
 
     # ROCE approximation: EBIT / (Total Assets - Current Liabilities)
-    # yfinance doesn't always have EBIT directly, approximate from operating income
     ebitda = _safe_float(info.get("ebitda"), 0)
     total_debt = _safe_float(info.get("totalDebt"), 0)
     total_cash = _safe_float(info.get("totalCash"), 0)
     capital_employed = market_cap + total_debt - total_cash
-    roce_pct = round((ebitda / capital_employed) * 100, 2) if capital_employed > 0 else 15.0
+    if capital_employed <= 0:
+        capital_employed = market_cap if market_cap > 0 else 1
+    roce_pct = round(_safe_div(ebitda, capital_employed, 0.15) * 100, 2)
+    # Clamp ROCE to reasonable range
+    roce_pct = max(-50, min(200, roce_pct))
 
     moat_score = 0
     if roe_pct >= 20: moat_score += 20
@@ -103,7 +160,9 @@ def analyze_stock_fundamentals(ticker_symbol: str) -> dict:
     revenue_qtr_growth_pct = _safe_pct(info.get("revenueQuarterlyGrowth"), revenue_growth_pct * 0.25)
 
     # 5-year revenue CAGR approximation from trailing vs forward data
-    five_year_avg_div_yield = _safe_pct(info.get("fiveYearAvgDividendYield"), 1.0)
+    five_year_avg_div_yield = _safe_float(info.get("fiveYearAvgDividendYield"), 1.0)
+    # Note: fiveYearAvgDividendYield is already in percentage form from yfinance
+    # (e.g., 1.5 means 1.5%), NOT a decimal. So we do NOT multiply by 100.
 
     growth_score = 0
     if revenue_growth_pct >= 20: growth_score += 25
@@ -123,23 +182,52 @@ def analyze_stock_fundamentals(ticker_symbol: str) -> dict:
     growth_score = min(100, max(0, growth_score))
 
     # ─── 3. BALANCE SHEET FORTRESS ──────────────────────────────────────
+    # yfinance returns debtToEquity already as percentage (e.g., 45.0 for 0.45 ratio)
     debt_to_equity_raw = info.get("debtToEquity")
-    de_ratio = round(float(debt_to_equity_raw) / 100, 2) if debt_to_equity_raw is not None else 0.5
+    if debt_to_equity_raw is not None:
+        try:
+            de_val = float(debt_to_equity_raw)
+            if math.isnan(de_val) or math.isinf(de_val):
+                de_ratio = 0.5
+            else:
+                de_ratio = round(de_val / 100, 2)
+                # Clamp to reasonable range
+                de_ratio = max(0, min(50, de_ratio))
+        except (ValueError, TypeError):
+            de_ratio = 0.5
+    else:
+        de_ratio = 0.5
+
     current_ratio = _safe_float(info.get("currentRatio"), 1.5)
     quick_ratio = _safe_float(info.get("quickRatio"), 1.0)
 
     # Interest coverage = EBITDA / Interest Expense (approximation)
     total_revenue = _safe_float(info.get("totalRevenue"), 1)
-    interest_expense = abs(_safe_float(info.get("interestExpense", 0), total_revenue * 0.02))
-    interest_coverage = round(ebitda / interest_expense, 2) if interest_expense > 0 else 20.0
+    # interestExpense from yfinance can be None, or nested in financials
+    interest_expense_raw = info.get("interestExpense")
+    if interest_expense_raw is not None:
+        interest_expense = abs(_safe_float(interest_expense_raw, 0))
+    else:
+        # Fallback: estimate as 2% of revenue
+        interest_expense = abs(total_revenue * 0.02)
+
+    if interest_expense > 0:
+        interest_coverage = round(_safe_div(ebitda, interest_expense, 20.0), 2)
+    else:
+        interest_coverage = 20.0
+    # Clamp to reasonable range
+    interest_coverage = max(-10, min(200, interest_coverage))
 
     # Cash as % of market cap
-    cash_pct_of_mcap = round((total_cash / market_cap) * 100, 2) if market_cap > 0 else 0.0
+    cash_pct_of_mcap = round(_safe_div(total_cash, market_cap, 0.0) * 100, 2)
 
     # Promoter holding (not available in yfinance, use heuristic)
     promoter_holding_pct = _safe_float(info.get("heldPercentInsiders"), 0.0)
     if promoter_holding_pct > 0:
-        promoter_holding_pct = round(promoter_holding_pct * 100, 2)
+        # yfinance returns this as a decimal (e.g., 0.55 for 55%)
+        if promoter_holding_pct < 1.0:
+            promoter_holding_pct = round(promoter_holding_pct * 100, 2)
+        # else it's already in percentage form
     else:
         promoter_holding_pct = 55.0  # Indian blue-chip average
 
@@ -173,14 +261,21 @@ def analyze_stock_fundamentals(ticker_symbol: str) -> dict:
     ev_to_ebitda = _safe_float(info.get("enterpriseToEbitda"), 15.0)
     ev_to_revenue = _safe_float(info.get("enterpriseToRevenue"), 3.0)
 
+    # Clamp valuation ratios to prevent absurd values
+    pe_ratio = max(0, min(1000, pe_ratio))
+    forward_pe = max(0, min(1000, forward_pe))
+    peg_ratio = max(-10, min(100, peg_ratio))
+    pb_ratio = max(0, min(500, pb_ratio))
+    ev_to_ebitda = max(-50, min(500, ev_to_ebitda))
+
     # DCF Intrinsic Value Estimate (simplified)
     # IV = EPS × (8.5 + 2g) × (4.4 / Y)  — Benjamin Graham formula
     # g = earnings growth rate, Y = current 10Y bond yield (~7.1% for India)
     eps = _safe_float(info.get("trailingEps"), 0)
-    growth_g = min(earnings_growth_pct, 25)  # Cap at 25% for safety
+    growth_g = min(max(earnings_growth_pct, 0), 25)  # Cap at 25% and floor at 0% for safety
     graham_iv = round(eps * (8.5 + 2 * growth_g) * (4.4 / 7.1), 2) if eps > 0 else 0
     current_price = _safe_float(info.get("currentPrice") or info.get("regularMarketPrice"), 0)
-    margin_of_safety_pct = round(((graham_iv - current_price) / graham_iv) * 100, 1) if graham_iv > 0 else 0
+    margin_of_safety_pct = round(_safe_div(graham_iv - current_price, graham_iv, 0.0) * 100, 1) if graham_iv > 0 else 0
 
     valuation_score = 0
     if peg_ratio > 0:
@@ -275,6 +370,7 @@ def analyze_stock_fundamentals(ticker_symbol: str) -> dict:
         "industry": industry,
         "market_cap_cr": market_cap_cr,
         "cap_class": cap_class,
+        "data_source": data_source,
 
         # 1. Profitability Moat
         "roe_pct": roe_pct,

@@ -3,7 +3,12 @@ colibri-studio FastAPI Backend Application
 """
 
 import os
+import sys
 import json
+
+# Ensure server module path is available for imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles

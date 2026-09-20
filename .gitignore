@@ -10,6 +10,8 @@
 push_all_repos.sh
 push_all_repos.py
 run_git.sh
+qlik_job_hunter/
+.claude/worktrees/
 
 # Python
 __pycache__/

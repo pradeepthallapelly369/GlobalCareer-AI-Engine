@@ -1,0 +1,63 @@
+[submodule "AirLLM"]
+	path = AirLLM
+	url = https://github.com/pradeepthallapelly369/AetherMind-70B-Agent.git
+
+[submodule "BharatAlpha-AI-Trading-Engine"]
+	path = BharatAlpha-AI-Trading-Engine
+	url = https://github.com/pradeepthallapelly369/BharatAlpha-AI-Trading-Engine.git
+
+[submodule "MiroFish"]
+	path = MiroFish
+	url = https://github.com/pradeepthallapelly369/MiroFish.git
+
+[submodule "NemoClaw"]
+	path = NemoClaw
+	url = https://github.com/pradeepthallapelly369/NemoClaw.git
+
+[submodule "OmniRoute"]
+	path = OmniRoute
+	url = https://github.com/pradeepthallapelly369/OmniRoute.git
+
+[submodule "QlikHunter"]
+	path = QlikHunter
+	url = https://github.com/pradeepthallapelly369/QlikHunter-Automation-Engine.git
+
+[submodule "TradingAgents"]
+	path = TradingAgents
+	url = https://github.com/pradeepthallapelly369/TradingAgents.git
+
+[submodule "ai-job-search"]
+	path = ai-job-search
+	url = https://github.com/MadsLorentzen/ai-job-search.git
+
+[submodule "career-ops"]
+	path = career-ops
+	url = https://github.com/pradeepthallapelly369/dbt-databricks-lakehouse-pipeline.git
+
+[submodule "everything-claude-code"]
+	path = everything-claude-code
+	url = https://github.com/pradeepthallapelly369/everything-claude-code.git
+
+[submodule "indian-stock-market-lakehouse-pipeline"]
+	path = indian-stock-market-lakehouse-pipeline
+	url = https://github.com/pradeepthallapelly369/indian-stock-market-lakehouse-pipeline.git
+
+[submodule "local_telegram_agent"]
+	path = local_telegram_agent
+	url = https://github.com/pradeepthallapelly369/local_telegram_agent.git
+
+[submodule "openclaw"]
+	path = openclaw
+	url = https://github.com/pradeepthallapelly369/openclaw.git
+
+[submodule "pradeepthallapelly369.github.io"]
+	path = pradeepthallapelly369.github.io
+	url = https://github.com/pradeepthallapelly369/pradeepthallapelly369.github.io.git
+
+[submodule "public-apis"]
+	path = public-apis
+	url = https://github.com/public-apis/public-apis.git
+
+[submodule "colibri-studio/engine/colibri"]
+	path = colibri-studio/engine/colibri
+	url = https://github.com/NajimKh/colibri.git

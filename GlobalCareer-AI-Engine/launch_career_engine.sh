@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # ============================================================
 # GlobalCareer AI Engine — Automated Dashboard Launcher
-# Starts FastAPI server on port :5060 and opens browser UI
+# Starts FastAPI server on port :8888 and opens browser UI
 # ============================================================
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PORT=5070
+PORT=8888
 URL="http://127.0.0.1:$PORT"
 
 echo "╔════════════════════════════════════════════════════════════════╗"
@@ -17,7 +17,7 @@ echo "║  🌐 Target: Remote Foreign Currency (USD/EUR) & Visa Relocation║"
 echo "╚════════════════════════════════════════════════════════════════╝"
 echo ""
 
-# Clean port 5060 if occupied
+# Clean port 8888 if occupied
 fuser -k $PORT/tcp 2>/dev/null || true
 sleep 1
 

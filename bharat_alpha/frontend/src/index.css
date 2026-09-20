@@ -205,3 +205,19 @@ h1, h2, h3, h4 {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent-cyan);
 }
+
+/* Drona AI animations */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+@keyframes drona-glow {
+  0%, 100% { box-shadow: 0 0 12px rgba(156, 39, 176, 0.4); }
+  50% { box-shadow: 0 0 28px rgba(156, 39, 176, 0.8), 0 0 50px rgba(0, 240, 255, 0.3); }
+}

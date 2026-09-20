@@ -31,27 +31,59 @@ async def dashboard():
     portal_info = get_portal_stats()
 
     # Build job rows
+    now = datetime.now()
     job_rows = ""
-    for job in applications[:100]:
+    apps_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "applications")
+    for job in applications:
+        created_str = job.get("created_at") or ""
+        days_old = 0
+        formatted_date = "Recent"
+        if created_str:
+            try:
+                c_date = datetime.strptime(created_str[:10], "%Y-%m-%d")
+                days_old = (now - c_date).days
+                if days_old == 0:
+                    formatted_date = "Today"
+                elif days_old == 1:
+                    formatted_date = "Yesterday"
+                else:
+                    formatted_date = f"{c_date.strftime('%b %d')} ({days_old}d ago)"
+            except Exception:
+                formatted_date = created_str[:10]
+
+        if days_old > 45:
+            continue
+
         score = job.get("match_score", 0)
         score_class = "high" if score >= 80 else "medium" if score >= 60 else "low"
         status = job.get("status", "Discovered")
         status_class = status.lower().replace(" ", "-")
+        date_class = "date-fresh" if days_old <= 7 else "date-recent" if days_old <= 30 else "date-older"
+
+        tailored_link = ""
+        job_id = job.get("id", "")
+        company = job.get("company", "")
+        if os.path.exists(apps_dir):
+            for d in os.listdir(apps_dir):
+                if (job_id and job_id[:8] in d) or (company and len(company) > 2 and company.lower() in d.lower()):
+                    tailored_link = f""" <a href="/api/tailored/{job_id or d}" target="_blank" class="apply-btn" style="background:var(--accent-purple);margin-left:4px;">View CV 📄</a>"""
+                    break
 
         job_rows += f"""
-        <tr class="job-row" data-score="{score}" data-status="{status}">
+        <tr class="job-row" data-score="{score}" data-status="{status}" data-days="{days_old}">
             <td><span class="score-badge {score_class}">{score}%</span></td>
             <td>
                 <div class="job-title">{job.get('title', 'N/A')}</div>
                 <div class="job-company">{job.get('company', 'N/A')}</div>
             </td>
+            <td><span class="date-tag {date_class}">{formatted_date}</span></td>
             <td>{job.get('location', 'Remote')}</td>
             <td>{job.get('region', 'Global')}</td>
             <td>{job.get('salary', '-') or '-'}</td>
             <td><span class="source-tag">{job.get('source', 'N/A')}</span></td>
             <td><span class="status-badge {status_class}">{status}</span></td>
             <td>
-                <a href="{job.get('url', '#')}" target="_blank" class="apply-btn">Apply →</a>
+                <a href="{job.get('url', '#')}" target="_blank" class="apply-btn">Apply →</a>{tailored_link}
             </td>
         </tr>"""
 
@@ -467,7 +499,7 @@ async def dashboard():
             <h1>🌍 GlobalCareer AI Engine</h1>
             <p>Autonomous Job Intelligence — {portal_info['total_portals']} Portals · {portal_info['unique_regions']} Regions · Scanning 4x Daily</p>
             <div class="header-actions">
-                <a href="/api/trigger-scan" class="header-btn" id="scan-btn">🔍 Run Scan Now</a>
+                <button onclick="triggerScan()" class="header-btn" id="scan-btn" style="cursor:pointer;border:none;">🔍 Run Scan Now</button>
                 <a href="/api/stats" class="header-btn">📊 API Stats</a>
                 <a href="/api/jobs" class="header-btn">📋 Jobs API</a>
             </div>
@@ -512,6 +544,13 @@ async def dashboard():
         <div id="tab-jobs" class="tab-content active">
             <div class="controls">
                 <input type="text" class="search-input" id="search" placeholder="Search jobs by title, company, or location..." oninput="filterJobs()">
+                <select class="filter-select" id="date-filter" onchange="filterJobs()">
+                    <option value="45">📅 Max 45 Days</option>
+                    <option value="30">📅 Past 30 Days</option>
+                    <option value="14">📅 Past 14 Days</option>
+                    <option value="7">📅 Past 7 Days (Fresh)</option>
+                    <option value="all">All Loaded</option>
+                </select>
                 <select class="filter-select" id="score-filter" onchange="filterJobs()">
                     <option value="all">All Scores</option>
                     <option value="80">80%+ Only</option>
@@ -530,6 +569,7 @@ async def dashboard():
                         <tr>
                             <th>Score</th>
                             <th>Job</th>
+                            <th>Date</th>
                             <th>Location</th>
                             <th>Region</th>
                             <th>Salary</th>
@@ -586,19 +626,40 @@ async def dashboard():
             event.target.classList.add('active');
         }}
 
+        async function triggerScan() {{
+            const btn = document.getElementById('scan-btn');
+            btn.innerText = '⏳ Scanning...';
+            btn.style.opacity = '0.7';
+            btn.disabled = true;
+            try {{
+                const res = await fetch('/api/trigger-scan');
+                const data = await res.json();
+                alert("Scan triggered in background! 149 portals are being evaluated. New matches will be emailed to pradeep.thallapelly369@outlook.com.");
+            }} catch(e) {{
+                alert("Error triggering scan: " + e);
+            }} finally {{
+                btn.innerText = '🔍 Run Scan Now';
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            }}
+        }}
+
         function filterJobs() {{
             const search = document.getElementById('search').value.toLowerCase();
             const scoreFilter = document.getElementById('score-filter').value;
             const statusFilter = document.getElementById('status-filter').value;
+            const dateFilter = document.getElementById('date-filter') ? document.getElementById('date-filter').value : 'all';
 
             document.querySelectorAll('.job-row').forEach(row => {{
                 const text = row.textContent.toLowerCase();
                 const score = parseInt(row.dataset.score) || 0;
                 const status = row.dataset.status || '';
+                const days = parseInt(row.dataset.days) || 0;
 
                 let show = text.includes(search);
                 if (scoreFilter !== 'all') show = show && score >= parseInt(scoreFilter);
                 if (statusFilter !== 'all') show = show && status === statusFilter;
+                if (dateFilter !== 'all') show = show && days <= parseInt(dateFilter);
 
                 row.style.display = show ? '' : 'none';
             }});
@@ -643,8 +704,90 @@ async def api_trigger_scan():
     thread.start()
     return {"status": "Scan triggered", "message": "Check email for results in ~5 minutes"}
 
-def start_dashboard(host="0.0.0.0", port=8888):
+@app.get("/api/tailored/{job_id}", response_class=HTMLResponse)
+async def view_tailored_job(job_id: str):
+    apps_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "applications")
+    target_dir = None
+    if os.path.exists(apps_dir):
+        for d in os.listdir(apps_dir):
+            if (job_id and job_id[:8] in d) or job_id == d:
+                target_dir = os.path.join(apps_dir, d)
+                break
+    
+    resume_content = "No tailored resume found for this job yet."
+    cover_content = "No tailored cover letter found."
+    company_name = "Application"
+    if target_dir:
+        company_name = os.path.basename(target_dir).split("_")[0]
+        res_path = os.path.join(target_dir, "Tailored_Resume.md")
+        if os.path.exists(res_path):
+            with open(res_path, "r", encoding="utf-8") as f:
+                resume_content = f.read()
+        cov_path = os.path.join(target_dir, "Cover_Letter.md")
+        if os.path.exists(cov_path):
+            with open(cov_path, "r", encoding="utf-8") as f:
+                cover_content = f.read()
+                
+    import markdown
+    try:
+        resume_html = markdown.markdown(resume_content, extensions=['tables', 'fenced_code'])
+        cover_html = markdown.markdown(cover_content, extensions=['tables', 'fenced_code'])
+    except Exception:
+        resume_html = f"<pre>{resume_content}</pre>"
+        cover_html = f"<pre>{cover_content}</pre>"
+        
+    html = f"""<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{company_name} — Tailored Application Package</title>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <style>
+            body {{ font-family: 'Inter', -apple-system, sans-serif; background: #0a0e1a; color: #f1f5f9; padding: 40px 20px; max-width: 900px; margin: 0 auto; line-height: 1.6; }}
+            .top-bar {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }}
+            .btn {{ background: #2563eb; color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; display: inline-block; }}
+            .card {{ background: #1a1f35; border: 1px solid #2d3555; border-radius: 12px; padding: 28px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }}
+            h1, h2, h3 {{ color: #38bdf8; margin-top: 0; }}
+            hr {{ border: none; border-top: 1px solid #2d3555; margin: 20px 0; }}
+            ul {{ padding-left: 20px; }}
+            li {{ margin-bottom: 6px; }}
+            pre, code {{ background: #0f172a; padding: 2px 6px; border-radius: 4px; color: #38bdf8; }}
+        </style>
+    </head>
+    <body>
+        <div class="top-bar">
+            <a href="/" class="btn">&larr; Back to Dashboard</a>
+            <span style="color: #94a3b8; font-size: 13px;">Target: {company_name}</span>
+        </div>
+        <div class="card">
+            <h2>📄 Tailored ATS Resume</h2>
+            <hr>
+            <div>{resume_html}</div>
+        </div>
+        <div class="card">
+            <h2 style="color:#a78bfa;">✉️ Tailored Cover Letter</h2>
+            <hr>
+            <div>{cover_html}</div>
+        </div>
+    </body>
+    </html>"""
+    return html
+
+def start_dashboard(host="0.0.0.0", port=None):
     """Start the dashboard server."""
+    if port is None:
+        port = int(os.environ.get("PORT", 8888))
+    
+    if port == 8888:
+        import threading
+        def _serve_8888():
+            try:
+                uvicorn.run(app, host=host, port=5070, log_level="warning")
+            except Exception as e:
+                logger.debug(f"Port 8888 listener: {e}")
+        threading.Thread(target=_serve_8888, daemon=True).start()
+
     print(f"🌍 GlobalCareer Dashboard starting at http://localhost:{port}")
     uvicorn.run(app, host=host, port=port)
 

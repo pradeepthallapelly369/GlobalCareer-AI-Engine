@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, TrendingDown, ShieldAlert, Zap, Search, 
   BarChart2, Filter, Award, Target, Calculator, PieChart, Activity, RefreshCw,
-  Coins, Landmark, Percent, Layers, Bot, Send, CheckCircle2, Play, AlertTriangle
+  Coins, Landmark, Percent, Layers, Bot, Send, CheckCircle2, Play, AlertTriangle,
+  Microscope, Brain, Loader, ChevronRight, Users, Cpu
 } from 'lucide-react';
 
 export default function App() {
@@ -63,6 +64,14 @@ export default function App() {
   const [btResult, setBtResult] = useState(null);
   const [btLoading, setBtLoading] = useState(false);
 
+  // ── Drona Deep Research State ─────────────────────────────────────────────
+  const [dronaTicker, setDronaTicker] = useState('');
+  const [dronaDate, setDronaDate] = useState(new Date().toISOString().slice(0, 10));
+  const [dronaLoading, setDronaLoading] = useState(false);
+  const [dronaResult, setDronaResult] = useState(null);
+  const [dronaProgress, setDronaProgress] = useState([]);
+  const [dronaEngineStatus, setDronaEngineStatus] = useState(null);
+
   // Position Calculator state
   const [calcCapital, setCalcCapital] = useState(500000);
   const [calcRiskPct, setCalcRiskPct] = useState(1.5);
@@ -79,7 +88,73 @@ export default function App() {
     fetchSipCalculation(25000, 15, 15.0, 10.0);
     fetchPortfolioAllocation(32, 'MODERATE');
     fetchAgentSuggestions();
+    fetchDronaStatus();
   }, []);
+
+  const fetchDronaStatus = async () => {
+    try {
+      const res = await fetch('/api/deep-research/status');
+      const data = await res.json();
+      setDronaEngineStatus(data);
+    } catch (e) { console.error('Drona status error:', e); }
+  };
+
+  const runDronaResearch = async (e) => {
+    e.preventDefault();
+    if (!dronaTicker.trim()) return;
+    setDronaLoading(true);
+    setDronaResult(null);
+    setDronaProgress([]);
+
+    const ticker = dronaTicker.trim().toUpperCase();
+    const dateParam = dronaDate ? `?date=${dronaDate}` : '';
+
+    // Use SSE stream for live progress
+    const evtSource = new EventSource(`/api/deep-research-stream/${ticker}${dateParam}`);
+
+    evtSource.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        if (data.status === 'running') {
+          setDronaProgress(prev => {
+            const exists = prev.find(p => p.stage === data.stage);
+            if (exists) return prev.map(p => p.stage === data.stage ? data : p);
+            return [...prev, data];
+          });
+        } else if (data.status === 'done') {
+          if (data.stage === 'complete' || data.stage === 'fallback') {
+            try {
+              const result = JSON.parse(data.detail);
+              setDronaResult(result);
+            } catch (_) {}
+            setDronaLoading(false);
+            evtSource.close();
+          } else {
+            setDronaProgress(prev =>
+              prev.map(p => p.stage === data.stage ? { ...p, status: 'done' } : p)
+            );
+          }
+        } else if (data.status === 'error') {
+          setDronaProgress(prev => [...prev, { ...data, status: 'error' }]);
+          // Fall back to regular fetch
+          evtSource.close();
+          fetch(`/api/deep-research/${ticker}${dateParam}`)
+            .then(r => r.json())
+            .then(result => { setDronaResult(result); setDronaLoading(false); })
+            .catch(() => setDronaLoading(false));
+        }
+      } catch (_) {}
+    };
+
+    evtSource.onerror = () => {
+      evtSource.close();
+      // Fallback to regular endpoint
+      fetch(`/api/deep-research/${ticker}${dateParam}`)
+        .then(r => r.json())
+        .then(result => { setDronaResult(result); setDronaLoading(false); })
+        .catch(() => setDronaLoading(false));
+    };
+  };
 
   const fetchMarketRadar = async () => {
     setRadarLoading(true);
@@ -364,6 +439,7 @@ export default function App() {
         <div style={{ maxWidth: 1400, margin: '0 auto', display: 'flex', gap: 8, overflowX: 'auto' }}>
           {[
             { id: 'agent_copilot', label: '🤖 AI Investment Advisor', icon: Bot },
+            { id: 'drona_research', label: '🔬 Drona Deep Research', icon: Microscope },
             { id: 'market_radar', label: '📊 Daily Market Radar', icon: Activity },
             { id: 'buffett_scanner', label: '🏆 Buffett Scanner', icon: Award },
             { id: 'terminal', label: '🔬 Stock Deep Dive', icon: BarChart2 },
@@ -382,6 +458,7 @@ export default function App() {
                   setActiveTab(tab.id);
                   if (tab.id === 'market_radar' && !radarData) fetchMarketRadar();
                   if (tab.id === 'buffett_scanner' && !buffettData) fetchBuffettScan();
+                  if (tab.id === 'drona_research') fetchDronaStatus();
                 }}
                 style={{
                   display: 'flex',
@@ -992,6 +1069,25 @@ export default function App() {
                         </span>
                       </div>
                     </div>
+                    <button
+                      onClick={() => {
+                        setDronaTicker(stockData.ticker);
+                        setActiveTab('drona_research');
+                      }}
+                      className="btn-primary"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        padding: '10px 18px',
+                        background: 'linear-gradient(135deg, #9C27B0, #673AB7)',
+                        boxShadow: '0 0 15px rgba(156,39,176,0.35)',
+                        fontSize: '0.85rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <Brain size={16} /> 🔬 Drona Deep Research
+                    </button>
                   </div>
                 </div>
 
@@ -1343,7 +1439,213 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB 7: STRATEGY BACKTESTER */}
+        {/* TAB: DRONA AI DEEP RESEARCH */}
+        {activeTab === 'drona_research' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
+              <div>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 800, background: 'linear-gradient(135deg, #9C27B0, #00F0FF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                  🔬 Drona AI — Deep Multi-Agent Research
+                </h2>
+                <p style={{ color: 'var(--text-secondary)', marginTop: 6 }}>
+                  9 specialised AI agents debate your stock — Fundamental, Technical, Sentiment, News, Bull/Bear Researchers, Trader &amp; Risk Manager
+                </p>
+              </div>
+              <div className="glass-panel" style={{ padding: '10px 18px', display: 'flex', alignItems: 'center', gap: 10, borderLeft: dronaEngineStatus?.drona_available ? '3px solid #00E676' : '3px solid #FF5252' }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: dronaEngineStatus?.drona_available ? '#00E676' : '#FF5252', boxShadow: dronaEngineStatus?.drona_available ? '0 0 8px #00E676' : '0 0 8px #FF5252' }} />
+                <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                  {dronaEngineStatus?.drona_available ? 'Engine Online' : 'Fallback Mode'}
+                </span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: 10 }}>
+                  {dronaEngineStatus?.llm_backend || 'Initialising…'}
+                </span>
+              </div>
+            </div>
+
+            {/* Agent cards info */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 }}>
+              {[
+                { name: 'Fundamental', icon: '📊', color: '#00F0FF' },
+                { name: 'Technical', icon: '📈', color: '#00E676' },
+                { name: 'Sentiment', icon: '💬', color: '#FF9800' },
+                { name: 'News', icon: '📰', color: '#FF5722' },
+                { name: 'Bull Research', icon: '🐂', color: '#4CAF50' },
+                { name: 'Bear Research', icon: '🐻', color: '#F44336' },
+                { name: 'Trader', icon: '⚡', color: '#FFEB3B' },
+                { name: 'Risk Manager', icon: '🛡️', color: '#E91E63' },
+                { name: 'Portfolio Mgr', icon: '💼', color: '#9C27B0' },
+              ].map(a => (
+                <div key={a.name} className="glass-panel" style={{ padding: '12px 14px', borderLeft: `3px solid ${a.color}`, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: '1.2rem' }}>{a.icon}</span>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)' }}>{a.name}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Search form */}
+            <form onSubmit={runDronaResearch} className="glass-panel" style={{ padding: 24, display: 'flex', gap: 16, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+              <div style={{ flex: 2, minWidth: 180 }}>
+                <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                  Ticker Symbol
+                </label>
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder="e.g. SBIN, RELIANCE, INFY, AAPL, BTC-USD"
+                  value={dronaTicker}
+                  onChange={e => setDronaTicker(e.target.value)}
+                  style={{ width: '100%' }}
+                  disabled={dronaLoading}
+                />
+              </div>
+              <div style={{ flex: 1, minWidth: 150 }}>
+                <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                  Analysis Date
+                </label>
+                <input
+                  type="date"
+                  className="search-input mono"
+                  value={dronaDate}
+                  onChange={e => setDronaDate(e.target.value)}
+                  style={{ width: '100%' }}
+                  disabled={dronaLoading}
+                />
+              </div>
+              <button type="submit" className="btn-primary" disabled={dronaLoading} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 28px', minWidth: 180, justifyContent: 'center', background: dronaLoading ? 'rgba(156,39,176,0.3)' : 'linear-gradient(135deg, #9C27B0, #673AB7)', boxShadow: dronaLoading ? 'none' : '0 0 20px rgba(156,39,176,0.4)' }}>
+                {dronaLoading ? <><Loader size={16} style={{ animation: 'spin 1s linear infinite' }} /> Analysing…</> : <><Brain size={16} /> Launch Deep Research</>}
+              </button>
+            </form>
+
+            {/* Live progress feed */}
+            {(dronaLoading || dronaProgress.length > 0) && (
+              <div className="glass-panel" style={{ padding: 20 }}>
+                <h3 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: 14, color: '#9C27B0', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Users size={16} /> Agent Activity Feed
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {dronaProgress.map((p, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: 6, borderLeft: `3px solid ${p.status === 'done' ? '#00E676' : p.status === 'error' ? '#FF5252' : '#9C27B0'}` }}>
+                      <div style={{ width: 8, height: 8, borderRadius: '50%', background: p.status === 'done' ? '#00E676' : p.status === 'error' ? '#FF5252' : '#9C27B0', flexShrink: 0, animation: p.status === 'running' ? 'pulse 1s infinite' : 'none' }} />
+                      <span style={{ fontSize: '0.82rem', fontWeight: 600, color: p.status === 'done' ? '#00E676' : p.status === 'error' ? '#FF5252' : 'var(--text-primary)', minWidth: 160 }}>{p.agent}</span>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{p.status === 'done' ? '✅ Done' : p.status === 'error' ? '❌ Error' : '⏳ Working…'}</span>
+                    </div>
+                  ))}
+                  {dronaLoading && dronaProgress.length === 0 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                      <Loader size={14} style={{ animation: 'spin 1s linear infinite' }} />
+                      Initialising research pipeline…
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Result display */}
+            {dronaResult && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+                {/* Decision Card */}
+                <div className="glass-panel" style={{
+                  padding: 28,
+                  borderLeft: `4px solid ${dronaResult.decision?.action === 'BUY' ? '#00E676' : dronaResult.decision?.action === 'SELL' ? '#FF5252' : '#FF9800'}`,
+                  background: dronaResult.decision?.action === 'BUY'
+                    ? 'linear-gradient(135deg, rgba(0,230,118,0.08), rgba(0,240,255,0.04))'
+                    : dronaResult.decision?.action === 'SELL'
+                    ? 'linear-gradient(135deg, rgba(255,82,82,0.08), rgba(255,87,34,0.04))'
+                    : 'linear-gradient(135deg, rgba(255,152,0,0.08), rgba(255,193,7,0.04))'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
+                    <div>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                        Drona AI — Final Decision
+                      </div>
+                      <div style={{ fontSize: '2.8rem', fontWeight: 900, marginTop: 4,
+                        color: dronaResult.decision?.action === 'BUY' ? '#00E676' : dronaResult.decision?.action === 'SELL' ? '#FF5252' : '#FF9800'
+                      }}>
+                        {dronaResult.decision?.action || 'HOLD'}
+                      </div>
+                      <div style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginTop: 4 }}>
+                        {dronaResult.ticker} · {dronaResult.analysis_date}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: 4 }}>Confidence</div>
+                      <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#00F0FF' }}>
+                        {dronaResult.decision?.confidence || 70}%
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 4 }}>
+                        via {dronaResult.engine?.replace('_', ' ')}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Confidence bar */}
+                  <div style={{ marginTop: 16, height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${dronaResult.decision?.confidence || 70}%`,
+                      background: dronaResult.decision?.action === 'BUY' ? 'linear-gradient(90deg, #00E676, #00F0FF)' : dronaResult.decision?.action === 'SELL' ? 'linear-gradient(90deg, #FF5252, #FF1744)' : 'linear-gradient(90deg, #FF9800, #FFEB3B)',
+                      borderRadius: 3, transition: 'width 0.8s ease'
+                    }} />
+                  </div>
+                </div>
+
+                {/* Reasoning */}
+                {dronaResult.decision?.reasoning && (
+                  <div className="glass-panel" style={{ padding: 24 }}>
+                    <h3 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: 14, color: '#00F0FF', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <Brain size={16} /> Multi-Agent Reasoning
+                    </h3>
+                    <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0 }}>
+                      {dronaResult.decision.reasoning}
+                    </pre>
+                  </div>
+                )}
+
+                {/* Risk Assessment */}
+                {dronaResult.decision?.risk_assessment && (
+                  <div className="glass-panel" style={{ padding: 20, borderLeft: '3px solid #E91E63' }}>
+                    <h3 style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: 10, color: '#E91E63', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      🛡️ Risk Assessment
+                    </h3>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.6 }}>
+                      {dronaResult.decision.risk_assessment}
+                    </p>
+                  </div>
+                )}
+
+                {/* Agents involved */}
+                {dronaResult.agents_involved?.length > 0 && (
+                  <div className="glass-panel" style={{ padding: 20 }}>
+                    <h3 style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: 12, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <Cpu size={14} /> Agents Involved
+                    </h3>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {dronaResult.agents_involved.map((a, i) => (
+                        <span key={i} style={{ padding: '4px 12px', background: 'rgba(156,39,176,0.15)', border: '1px solid rgba(156,39,176,0.3)', borderRadius: 20, fontSize: '0.76rem', color: '#CE93D8' }}>
+                          ✓ {a}
+                        </span>
+                      ))}
+                    </div>
+                    {dronaResult.deep_model && (
+                      <div style={{ marginTop: 12, fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                        🤖 Deep: <span className="mono">{dronaResult.deep_model}</span> · Quick: <span className="mono">{dronaResult.quick_model}</span>
+                      </div>
+                    )}
+                    {dronaResult.note && (
+                      <div style={{ marginTop: 8, fontSize: '0.74rem', color: '#FF9800', padding: '6px 10px', background: 'rgba(255,152,0,0.08)', borderRadius: 4 }}>
+                        ⚠️ {dronaResult.note}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+          </div>
+        )}
+
+                {/* TAB 7: STRATEGY BACKTESTER */}
         {activeTab === 'backtester' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div>

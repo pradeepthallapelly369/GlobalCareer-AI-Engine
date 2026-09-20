@@ -40,7 +40,7 @@ CANDIDATE = {
 # ── Job Search Parameters ────────────────────────────────────────────────────
 MATCH_THRESHOLD = 70  # Minimum match score to keep a job
 MAX_JOBS_PER_SCAN = 500  # Max jobs to process per scan cycle
-HOURS_OLD_THRESHOLD = 96  # Look at jobs posted in last 96 hours
+HOURS_OLD_THRESHOLD = 45 * 24  # Look at jobs posted in last 45 days (1080 hours)  # Look at jobs posted in last 96 hours
 JOBSPY_RESULTS_PER_QUERY = 15  # Results per jobspy query
 
 # ── Scheduling ───────────────────────────────────────────────────────────────

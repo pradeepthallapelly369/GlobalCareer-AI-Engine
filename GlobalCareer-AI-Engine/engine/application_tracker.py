@@ -164,30 +164,34 @@ def update_status(job_id, status, notes=None):
     conn.commit()
     conn.close()
 
-def get_all_applications(limit=500):
+def get_all_applications(limit=500, max_days=45):
     init_db()
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM applications ORDER BY match_score DESC, created_at DESC LIMIT ?", (limit,))
+    from datetime import timedelta
+    cutoff = (datetime.now() - timedelta(days=max_days)).strftime("%Y-%m-%d %H:%M:%S")
+    cursor.execute("SELECT * FROM applications WHERE created_at >= ? ORDER BY match_score DESC, created_at DESC LIMIT ?", (cutoff, limit))
     rows = cursor.fetchall()
     conn.close()
     return [dict(row) for row in rows]
 
-def get_stats():
+def get_stats(max_days=45):
     init_db()
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+    from datetime import timedelta
+    cutoff = (datetime.now() - timedelta(days=max_days)).strftime("%Y-%m-%d %H:%M:%S")
 
-    cursor.execute("SELECT COUNT(*) FROM applications")
+    cursor.execute("SELECT COUNT(*) FROM applications WHERE created_at >= ?", (cutoff,))
     total = cursor.fetchone()[0]
-    cursor.execute("SELECT status, COUNT(*) FROM applications GROUP BY status")
+    cursor.execute("SELECT status, COUNT(*) FROM applications WHERE created_at >= ? GROUP BY status", (cutoff,))
     by_status = dict(cursor.fetchall())
-    cursor.execute("SELECT region, COUNT(*) FROM applications GROUP BY region ORDER BY COUNT(*) DESC LIMIT 20")
+    cursor.execute("SELECT region, COUNT(*) FROM applications WHERE created_at >= ? GROUP BY region ORDER BY COUNT(*) DESC LIMIT 20", (cutoff,))
     by_region = dict(cursor.fetchall())
-    cursor.execute("SELECT source, COUNT(*) FROM applications GROUP BY source ORDER BY COUNT(*) DESC LIMIT 20")
+    cursor.execute("SELECT source, COUNT(*) FROM applications WHERE created_at >= ? GROUP BY source ORDER BY COUNT(*) DESC LIMIT 20", (cutoff,))
     by_source = dict(cursor.fetchall())
-    cursor.execute("SELECT AVG(match_score) FROM applications")
+    cursor.execute("SELECT AVG(match_score) FROM applications WHERE created_at >= ?", (cutoff,))
     avg_score = cursor.fetchone()[0] or 0
     cursor.execute("SELECT COUNT(*) FROM scan_history")
     total_scans = cursor.fetchone()[0]

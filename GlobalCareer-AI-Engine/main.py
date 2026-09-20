@@ -1,3 +1,4 @@
+import threading
 """
 GlobalCareer AI Engine — Main Entry Point
 Autonomous job hunting machine: Scan → Evaluate → Track → Email → Cold Outreach
@@ -160,8 +161,27 @@ def run_scan():
         "cold_emails": len(cold_emails),
     }
 
+def start_background_dashboard(ports=[8888, 5070]):
+    """Start the FastAPI dashboard in background threads on ports 5060 and 8888."""
+    import threading
+    import uvicorn
+    from dashboard.app import app
+
+    def _run_server(port):
+        try:
+            logger.info(f"🌐 Starting GlobalCareer Web Dashboard on http://0.0.0.0:{port}")
+            uvicorn.run(app, host="0.0.0.0", port=port, log_level="warning")
+        except Exception as e:
+            logger.warning(f"Could not bind dashboard on port {port}: {e}")
+
+    for p in ports:
+        t = threading.Thread(target=_run_server, args=(p,), daemon=True)
+        t.start()
+
 def run_scheduler():
     """Run the scan on schedule (4x daily)."""
+    start_background_dashboard(ports=[8888, 5070])
+    time.sleep(1)
     try:
         from apscheduler.schedulers.blocking import BlockingScheduler
         from apscheduler.triggers.cron import CronTrigger
@@ -181,7 +201,7 @@ def run_scheduler():
 
     logger.info("⏰ Scheduler started — scanning 2x daily (9:30AM and 9:30PM IST)")
     logger.info("   Running initial scan now...")
-    run_scan()
+    threading.Thread(target=run_scan, daemon=True).start()
 
     try:
         scheduler.start()
@@ -199,7 +219,7 @@ if __name__ == "__main__":
 
     if args.dashboard:
         from dashboard.app import start_dashboard
-        start_dashboard()
+        start_dashboard(port=8888)
     elif args.schedule:
         run_scheduler()
     elif args.stats:

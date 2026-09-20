@@ -1,4 +1,7 @@
 from fastapi import FastAPI, Query, HTTPException
+from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
+import os as _os
 from fastapi.middleware.cors import CORSMiddleware
 import yfinance as yf
 import pandas as pd
@@ -514,22 +517,6 @@ def get_buffett_scan(max_stocks: int = Query(30, ge=5, le=100)):
         return {"status": "error", "message": str(e)}
 
 
-@app.get("/api/deep-research/{ticker}")
-def get_deep_research(ticker: str, date: str = Query(None)):
-    """
-    Drona AI Deep Research — Multi-Agent TradingAgents Analysis.
-    Orchestrates Fundamental, Technical, Sentiment, and News analysts
-    with Bull/Bear debate for comprehensive trading decisions.
-    Powered by TauricResearch/TradingAgents framework.
-    """
-    try:
-        result = drona_engine.run_deep_research(ticker, date)
-        return sanitize_json_obj(result)
-    except Exception as e:
-        print(f"Deep research error for {ticker}: {e}")
-        return {"status": "error", "message": str(e)}
-
-
 @app.get("/api/deep-research/status")
 def get_deep_research_status():
     """
@@ -539,7 +526,9 @@ def get_deep_research_status():
         "status": "success",
         "drona_available": drona_engine.is_available(),
         "engine": "TauricResearch/TradingAgents v0.4.0",
-        "llm_backend": "Ollama (llama3.1:8b)",
+        "llm_backend": "OpenRouter / DeepSeek",
+        "deep_model": "deepseek/deepseek-v4-pro-0813",
+        "quick_model": "deepseek/deepseek-v4.1-flash",
         "agents": [
             "Fundamental Analyst",
             "Technical Analyst",
@@ -552,3 +541,53 @@ def get_deep_research_status():
             "Portfolio Manager"
         ]
     }
+
+
+@app.get("/api/deep-research/{ticker}")
+def get_deep_research(ticker: str, date: str = Query(None)):
+    """
+    Drona AI Deep Research — Multi-Agent TradingAgents Analysis.
+    Orchestrates Fundamental, Technical, Sentiment, and News analysts
+    with Bull/Bear debate for comprehensive trading decisions.
+    Powered by TauricResearch/TradingAgents + OpenRouter/DeepSeek.
+    """
+    try:
+        result = drona_engine.run_deep_research(ticker, date)
+        return sanitize_json_obj(result)
+    except Exception as e:
+        print(f"Deep research error for {ticker}: {e}")
+        return {"status": "error", "message": str(e)}
+
+
+@app.get("/api/deep-research-stream/{ticker}")
+def stream_deep_research(ticker: str, date: str = Query(None)):
+    """
+    Server-Sent Events stream for Drona AI deep research.
+    Each event is a JSON object with stage/agent/status/detail fields.
+    """
+    def event_generator():
+        for chunk in drona_engine.stream_research_progress(ticker, date):
+            yield chunk
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+# ── Serve built Vite frontend ────────────────────────────────────────────────
+_FRONTEND_DIST = _os.path.join(_os.path.dirname(__file__), "..", "frontend", "dist")
+if _os.path.isdir(_FRONTEND_DIST):
+    app.mount("/assets", StaticFiles(directory=_os.path.join(_FRONTEND_DIST, "assets")), name="assets")
+
+    @app.get("/", include_in_schema=False)
+    @app.get("/{full_path:path}", include_in_schema=False)
+    def serve_spa(full_path: str = ""):
+        # Don't intercept API routes
+        if full_path.startswith("api/") or full_path.startswith("docs") or full_path.startswith("openapi"):
+            raise HTTPException(status_code=404)
+        index = _os.path.join(_FRONTEND_DIST, "index.html")
+        return FileResponse(index)

@@ -25,7 +25,7 @@ The platform unites **JD-based ATS Resume Customization**, **Cold Recruiter Emai
 
 ```mermaid
 flowchart TD
-    User([🖥️ Candidate Dashboard :5060]) -->|Paste JD| ResOpt[🎯 AI Resume & Pitch Customizer]
+    User([🖥️ Candidate Dashboard :8888]) -->|Paste JD| ResOpt[🎯 AI Resume & Pitch Customizer]
     User -->|Stream Stream| JobRadar[📡 Global Remote & Visa Job Radar]
     User -->|Manage Pipeline| Tracker[📊 SQLite Application Lifecycle Tracker]
 
@@ -83,7 +83,7 @@ chmod +x launch_career_engine.sh
 ./launch_career_engine.sh
 ```
 
-- **Dashboard UI**: `http://localhost:5060`
+- **Dashboard UI**: `http://localhost:8888`
 
 ---
 

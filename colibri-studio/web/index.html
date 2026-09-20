@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Colibrì Studio — Local MoE Multi-Tier Orchestrator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- Top App Header -->
+  <header class="app-header">
+    <div class="brand-wrapper">
+      <div class="logo-badge">🐦</div>
+      <div class="brand-text">
+        <h1>Colibrì Studio</h1>
+        <p>Local MoE Multi-Tier Orchestrator · Pure C Engine</p>
+      </div>
+    </div>
+
+    <!-- Live Telemetry Pills -->
+    <div class="header-telemetry">
+      <div class="telemetry-chip">
+        <span class="pulse-dot"></span>
+        <span>Engine: <strong id="engineStatusTxt">Ready (5/5 Binaries)</strong></span>
+      </div>
+      <div class="telemetry-chip">
+        <span>CPU: <strong id="cpuUsageTxt">--%</strong> (12 Th)</span>
+      </div>
+      <div class="telemetry-chip">
+        <span>RAM: <strong id="ramUsageTxt">-- / 64 GB</strong></span>
+      </div>
+      <div class="telemetry-chip disk-warning" id="diskChip">
+        <span>NVMe Free: <strong id="diskFreeTxt">85.0 GB</strong></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+    <!-- Model Hierarchy Matrix -->
+    <section>
+      <div class="section-title-wrap">
+        <div>
+          <h2 class="section-title">
+            <span>5-Tier MoE Model Hierarchy</span>
+          </h2>
+          <p class="section-sub">Select any tier to lock inference, or use Auto-Route to dispatch based on computational complexity.</p>
+        </div>
+      </div>
+
+      <div class="tier-grid" id="tierGrid">
+        <!-- Rendered via JavaScript -->
+      </div>
+    </section>
+
+    <!-- Content Workspace Split -->
+    <section class="content-columns">
+      <!-- Left: Interactive Chat & Playground -->
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h3 style="font-size: 1.05rem; font-weight: 600; color: #fff;">Inference Console</h3>
+            <p style="font-size: 0.76rem; color: var(--text-muted);" id="activeTierSubtitle">Auto-Routing Active</p>
+          </div>
+          <div class="mode-selector">
+            <button class="mode-btn active" id="modeAutoBtn" onclick="setMode('auto')">✨ Auto-Route</button>
+            <button class="mode-btn" id="modeManualBtn" onclick="setMode('manual')">🔒 Locked Tier</button>
+          </div>
+        </div>
+
+        <!-- Quick Prompts Bar -->
+        <div class="quick-prompts">
+          <span style="font-size: 0.72rem; color: var(--text-muted); align-self: center;">Try sample:</span>
+          <button class="quick-chip" onclick="applySample(1)">🔬 Tier 1: Math Theorem & Kernel</button>
+          <button class="quick-chip" onclick="applySample(2)">🏗️ Tier 2: Microservice Architecture</button>
+          <button class="quick-chip" onclick="applySample(3)">⚡ Tier 3: FastAPI ETL Pipeline</button>
+          <button class="quick-chip" onclick="applySample(4)">🛠️ Tier 4: Quick Regex & Syntax</button>
+          <button class="quick-chip" onclick="applySample(5)">💡 Tier 5: Sentiment & Edge Check</button>
+        </div>
+
+        <!-- Dynamic Routing Rationale Notification Box -->
+        <div class="routing-card" id="routingCard" style="display: none;">
+          <div class="routing-card-left">
+            <span style="font-size: 1.1rem;" id="routeIcon">🎯</span>
+            <div>
+              <div style="font-weight: 600; color: #fff;" id="routeTitle">Route Target</div>
+              <div style="font-size: 0.72rem; color: var(--text-secondary);" id="routeRationale">Analyzing...</div>
+            </div>
+          </div>
+          <span class="tier-tag" id="routeConfidenceTag" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); padding: 4px 8px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.72rem;">Confidence: 90%</span>
+        </div>
+
+        <!-- Chat History Window -->
+        <div class="chat-history" id="chatHistory">
+          <div class="chat-bubble assistant">
+            <div class="bubble-meta">
+              <span class="tier-tag" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">System Ready</span>
+              <span>Colibrì Studio v1.0</span>
+            </div>
+            <p>Welcome to <strong>Colibrì Studio</strong>! The C inference binaries for all 5 MoE tiers have been compiled.</p>
+            <p style="margin-top: 8px; font-size: 0.85rem; color: #cbd5e1;">Type a prompt below or pick a sample prompt. The intelligent router will analyze prompt complexity and stream expert activations across the memory hierarchy in real time.</p>
+          </div>
+        </div>
+
+        <!-- Input Bar -->
+        <div class="input-container">
+          <input 
+            type="text" 
+            id="promptInput" 
+            class="chat-input" 
+            placeholder="Type your query or instruction (e.g. 'Prove Paxos consensus under network partition')..."
+            autocomplete="off"
+            onkeydown="if(event.key === 'Enter') handleSend();"
+          />
+          <button class="send-btn" id="sendBtn" onclick="handleSend()">
+            <span>Stream</span>
+            <span>⚡</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right: MoE Brain Cortex & Hardware HUD -->
+      <div class="panel visualizer-panel">
+        <div class="panel-header">
+          <div>
+            <h3 style="font-size: 1.05rem; font-weight: 600; color: #fff;">MoE Cortex Visualizer</h3>
+            <p style="font-size: 0.76rem; color: var(--text-muted);">Real-time layer routing & sparse expert activation</p>
+          </div>
+          <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-cyan);" id="activeCortexLayer">Layer: Idle</span>
+        </div>
+
+        <!-- Canvas Visualizer -->
+        <div class="cortex-canvas-wrap">
+          <canvas id="cortexCanvas"></canvas>
+        </div>
+
+        <!-- Cortex Performance Metrics -->
+        <div class="cortex-stats-grid">
+          <div class="stat-box">
+            <div class="stat-box-title">Active Parameters</div>
+            <div class="stat-box-value" id="statActiveParams">~3B / tok</div>
+            <div class="stat-box-sub" id="statParamsRatio">Sparse Ratio: 8.5%</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-title">Expert Cache Hit Rate</div>
+            <div class="stat-box-value" id="statHitRate" style="color: #34d399;">88.4%</div>
+            <div class="stat-box-sub">RAM vs NVMe Stream</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-title">Generation Throughput</div>
+            <div class="stat-box-value" id="statTokRate">-- tok/s</div>
+            <div class="stat-box-sub" id="statTTFT">TTFT: --s</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-title">Total Active Experts</div>
+            <div class="stat-box-value" id="statTotalExperts">4,096</div>
+            <div class="stat-box-sub" id="statActiveExperts">Top-4 per token</div>
+          </div>
+        </div>
+
+        <!-- Live Routing Stream Log -->
+        <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 4px; display: flex; justify-content: space-between;">
+          <span>LIVE EXPERT STREAM I/O</span>
+          <span style="color: #34d399;">● STREAMING</span>
+        </div>
+        <div class="live-routing-log" id="routingLog">
+          <div class="log-entry">[0.00s] Colibrì pure-C backend ready. Memory multitier hierarchy online.</div>
+          <div class="log-entry ram-hit">[0.00s] Dense embeddings and shared attention resident in RAM.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>Colibrì Studio · Built with Pure C Inference Engine (<a href="https://github.com/JustVugg/colibri" target="_blank">JustVugg/colibri</a>) · 5-Tier MoE Hierarchy</p>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

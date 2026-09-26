@@ -61,3 +61,7 @@
 [submodule "colibri-studio/engine/colibri"]
 	path = colibri-studio/engine/colibri
 	url = https://github.com/NajimKh/colibri.git
+
+[submodule "pradeepthallapelly369_profile"]
+	path = pradeepthallapelly369_profile
+	url = https://github.com/pradeepthallapelly369/pradeepthallapelly369.git

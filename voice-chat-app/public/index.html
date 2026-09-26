@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AuraVoice - Live AI Voice Chat</title>
+  <meta name="description" content="Real-time interactive voice chat with local or cloud AI. Speak naturally and listen to AI audio responses with live visualizers.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container" id="app-container">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-icon">
+          <div class="sound-wave-icon">
+            <span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="brand-text">
+          <h1 class="brand-title">AuraVoice</h1>
+          <span class="status-indicator" id="connection-status">
+            <span class="status-dot"></span>
+            <span class="status-label" id="status-label">Free Local AI Ready</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Engine Badge -->
+        <span class="engine-badge" id="engine-badge" title="AI Engine currently in use">
+          🖥️ Local AI (Free)
+        </span>
+
+        <!-- Hands-Free Conversation Toggle -->
+        <label class="hands-free-toggle" title="Hands-Free Mode: AI finishes speaking and automatically listens for your reply">
+          <input type="checkbox" id="hands-free-checkbox" checked>
+          <span class="toggle-slider"></span>
+          <span class="toggle-text">Hands-Free</span>
+        </label>
+
+        <!-- Transcript Drawer Toggle -->
+        <button id="toggle-history-btn" class="icon-btn" title="View Conversation Transcript" aria-label="Toggle Conversation History">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span class="badge" id="history-badge">0</span>
+        </button>
+
+        <!-- Settings Button -->
+        <button id="open-settings-btn" class="icon-btn" title="Settings" aria-label="Open Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Stage: Voice Sphere & Visualizer -->
+    <main class="voice-stage">
+      <div class="state-pill" id="state-pill">
+        <span class="state-icon" id="state-icon">✨</span>
+        <span class="state-text" id="state-text">Tap the microphone or press Space to start talking</span>
+      </div>
+
+      <!-- Center Orb & Visualizer Container -->
+      <div class="orb-wrapper" id="orb-wrapper">
+        <div class="aura-ring ring-1"></div>
+        <div class="aura-ring ring-2"></div>
+        <div class="aura-ring ring-3"></div>
+
+        <canvas id="visualizer-canvas" class="visualizer-canvas" width="380" height="380"></canvas>
+
+        <button id="mic-action-btn" class="mic-orb-btn" aria-label="Toggle Microphone or Interrupt">
+          <div class="orb-inner">
+            <svg class="mic-svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="23"></line>
+              <line x1="8" y1="23" x2="16" y2="23"></line>
+            </svg>
+            <svg class="stop-svg hidden" width="34" height="34" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="6" width="12" height="12" rx="2"></rect>
+            </svg>
+          </div>
+        </button>
+      </div>
+
+      <!-- Live Speech Bubble Display -->
+      <div class="live-card" id="live-card">
+        <div class="live-speaker-tag" id="live-speaker-tag">AuraVoice</div>
+        <div class="live-speech-content" id="live-speech-content">
+          "Hello! I am running on your local AI. Tap the microphone or press Spacebar to talk with me!"
+        </div>
+      </div>
+
+      <!-- Quick Control Row -->
+      <div class="quick-controls">
+        <button id="stop-speech-btn" class="control-pill-btn hidden" title="Interrupt / Stop AI Voice">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"></rect></svg>
+          Stop Speaking
+        </button>
+        <span class="shortcut-tip">Tip: Hold <kbd>Space</kbd> to talk &bull; Press <kbd>Esc</kbd> to stop</span>
+      </div>
+    </main>
+
+    <!-- Bottom Input Dock -->
+    <footer class="app-dock">
+      <form id="text-fallback-form" class="dock-form">
+        <input 
+          type="text" 
+          id="text-message-input" 
+          class="dock-input" 
+          placeholder="Or type a message if you don't want to speak..." 
+          autocomplete="off"
+        />
+        <button type="submit" id="send-message-btn" class="dock-send-btn" aria-label="Send Message">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </form>
+    </footer>
+
+    <!-- History Drawer -->
+    <aside class="history-drawer" id="history-drawer">
+      <div class="drawer-header">
+        <h2>Conversation History</h2>
+        <div class="drawer-header-actions">
+          <button id="clear-history-btn" class="text-action-btn" title="Clear all chat history">Clear</button>
+          <button id="close-history-btn" class="icon-btn" aria-label="Close History">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+      </div>
+      <div class="drawer-content" id="transcript-list">
+        <div class="empty-state" id="empty-transcript">
+          <div class="empty-icon">💬</div>
+          <p>No messages yet. Speak to begin your conversation!</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Settings Dialog -->
+    <dialog class="settings-dialog" id="settings-dialog">
+      <div class="dialog-card">
+        <div class="dialog-header">
+          <h2>Voice & Assistant Settings</h2>
+          <button id="close-settings-btn" class="icon-btn" aria-label="Close Settings">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <div class="dialog-body">
+          <!-- AI Engine Provider -->
+          <div class="setting-group">
+            <label for="provider-select">AI Engine Provider</label>
+            <select id="provider-select" class="styled-select">
+              <option value="ollama" selected>🖥️ Local Ollama (100% Free, No API Key Needed!)</option>
+              <option value="gemini">☁️ Google Gemini (Cloud API)</option>
+            </select>
+            <span class="setting-hint" id="provider-hint">Using local models on your computer with zero cost.</span>
+          </div>
+
+          <!-- Model Choice -->
+          <div class="setting-group">
+            <label for="model-select">Active Model</label>
+            <select id="model-select" class="styled-select">
+              <option value="llama3.2:latest" selected>llama3.2:latest (Fast & Free)</option>
+            </select>
+          </div>
+
+          <!-- Gemini API Key (Hidden if Ollama) -->
+          <div class="setting-group" id="gemini-key-group" style="display: none;">
+            <label for="api-key-input">Gemini API Key</label>
+            <div class="input-with-action">
+              <input type="password" id="api-key-input" placeholder="AIzaSy... (optional if using local AI)">
+              <button type="button" id="toggle-key-visibility" class="ghost-btn" title="Toggle visibility">👁️</button>
+            </div>
+            <span class="setting-hint" id="key-status-hint">Stored securely in your local browser storage.</span>
+          </div>
+
+          <!-- Persona / Spoken Tone -->
+          <div class="setting-group">
+            <label for="persona-select">Assistant Spoken Tone</label>
+            <select id="persona-select" class="styled-select">
+              <option value="helpful" selected>Helpful & Direct (Conversational, 1-3 sentences)</option>
+              <option value="concise">Ultra-Concise (1-2 sentences, punchy)</option>
+              <option value="casual">Casual Companion (Friendly & warm)</option>
+              <option value="technical">Technical Expert (Software/Engineering focused)</option>
+            </select>
+          </div>
+
+          <!-- TTS Voice Selection -->
+          <div class="setting-group">
+            <label for="tts-voice-select">Voice Selection (Speech Synthesis)</label>
+            <select id="tts-voice-select" class="styled-select">
+              <option value="">Default System Voice</option>
+            </select>
+          </div>
+
+          <!-- Voice Speed Rate -->
+          <div class="setting-group">
+            <div class="slider-header">
+              <label for="voice-rate-slider">Voice Speed</label>
+              <span id="voice-rate-val">1.0x</span>
+            </div>
+            <input type="range" id="voice-rate-slider" min="0.75" max="1.5" step="0.05" value="1.0">
+          </div>
+
+          <!-- Voice Pitch -->
+          <div class="setting-group">
+            <div class="slider-header">
+              <label for="voice-pitch-slider">Voice Pitch</label>
+              <span id="voice-pitch-val">1.0</span>
+            </div>
+            <input type="range" id="voice-pitch-slider" min="0.8" max="1.3" step="0.05" value="1.0">
+          </div>
+        </div>
+
+        <div class="dialog-footer">
+          <button id="save-settings-btn" class="primary-btn">Save Preferences</button>
+        </div>
+      </div>
+    </dialog>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
